@@ -8,6 +8,7 @@ Gem::Specification.new do |spec|
   spec.version       = HttpSim::VERSION
   spec.authors       = ["TJ Taylor"]
   spec.email         = ["dugancathal@gmail.com"]
+  spec.licenses      = ['MIT']
 
   spec.summary       = %q{TODO: Write a short summary, because Rubygems requires one.}
   spec.description   = %q{TODO: Write a longer description or delete this line.}
