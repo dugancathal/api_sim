@@ -27,6 +27,7 @@ module HttpSim
           response_code: overrides.fetch(:response_code),
           headers: overrides.fetch(:headers),
           response_body: overrides.fetch(:response_body),
+          schema: overrides.fetch(:schema),
         )
       end
     end

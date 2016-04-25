@@ -12,7 +12,7 @@ module HttpSim
       end
     end
 
-    def configure_endpoint(http_method, route, response_body, response_code=200, headers={})
+    def configure_endpoint(http_method, route, response_body, response_code=200, headers={}, schema_string='')
       endpoint_configurations.push(
         Matchers::StaticRequestMatcher.new(
           http_method: http_method,
@@ -20,7 +20,8 @@ module HttpSim
           response_code: response_code,
           headers: headers,
           default: true,
-          response_body: response_body
+          response_body: response_body,
+          schema: schema_string
         )
       )
     end

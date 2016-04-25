@@ -3,6 +3,7 @@ require 'nokogiri'
 require 'json'
 require 'tilt/erb'
 require 'http_sim/view_helpers'
+require 'json-schema'
 
 module HttpSim
   class BuiltApp < Sinatra::Base
@@ -33,6 +34,14 @@ module HttpSim
     end
 
     post '/ui/response/:method/*' do
+      @config = matcher(faux_request(http_method, route, faux_body))
+      unless params['schema'].empty?
+        @errors = JSON::Validator.fully_validate(params['schema'], params['body'])
+        if @errors.any?
+          return erb :'responses/form.html', layout: :'layout.html'
+        end
+      end
+
       new_config = create_matcher_override(mimicked_request)
 
       self.class.endpoints.unshift(new_config)
@@ -82,7 +91,8 @@ module HttpSim
         response_code: parsed_body.fetch('status', old_config[0]).to_i,
         headers: parsed_body.fetch('headers', old_config[1]),
         response_body: parsed_body.fetch('body', old_config[2]),
-        matcher: parsed_body.fetch('match', '')
+        matcher: parsed_body.fetch('match', ''),
+        schema: parsed_body.fetch('schema', '')
       )
     end
 

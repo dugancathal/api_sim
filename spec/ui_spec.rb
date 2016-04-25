@@ -9,7 +9,7 @@ describe 'App UI' do
 
   before do
     @app = HttpSim.build_app do
-      configure_endpoint 'GET', '/endpoint', 'Hi!', 200, {'X-CUSTOM-HEADER' => 'easy as abc'}
+      configure_endpoint 'GET', '/endpoint', 'Hi!', 200, {'X-CUSTOM-HEADER' => 'easy as abc', 'CONTENT-TYPE' => 'application/json'}
 
       configure_dynamic_endpoint 'GET', '/dynamic', ->(req) {
         [201, {'X-CUSTOM-HEADER' => '123'}, 'Howdy!']
@@ -120,5 +120,20 @@ describe 'App UI' do
 
     response = post '/matcher', 'key1'
     expect(response.body).to eq 'Hola friend'
+  end
+
+  it 'can verify JSON schemas against bodies' do
+    visit '/'
+
+    click_on '/endpoint'
+    fill_in 'Response schema', with: {"type": "object", "properties": {"a": {"type": "integer"}}}.to_json
+    fill_in 'Response body', with: '{"a": "b"}'
+    click_on 'Save'
+    expect(page).to have_content 'Body does not match expected schema'
+
+    fill_in 'Response body', with: '{"a": 1}'
+    click_on 'Save'
+
+    expect(page).to have_css 'tr', text: '/endpoint'
   end
 end
