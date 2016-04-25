@@ -2,13 +2,14 @@ require 'sinatra/base'
 require 'nokogiri'
 require 'json'
 require 'tilt/erb'
+require 'http_sim/view_helpers'
 
 module HttpSim
   class BuiltApp < Sinatra::Base
     use Rack::MethodOverride
 
-    ON_NO_MATCHER_FOUND = -> do
-      raise 'No response has been configured for that request'
+    helpers do
+      include ViewHelpers
     end
 
     def self.endpoints(endpoints = nil)
@@ -16,64 +17,24 @@ module HttpSim
       @endpoints = endpoints
     end
 
-    put '/response/*' do
-      route = "/#{params[:splat].first}"
-      http_method = parsed_body['method'].upcase
-
-      old_matcher = matcher(faux_request(http_method, route, request.body))
-      old_matcher.overridden!
-      old_config = old_matcher.response(faux_request)
-
-      status = parsed_body['status'] || old_config[0]
-      headers = parsed_body['headers'] || old_config[1]
-      body = parsed_body['body'] || old_config[2]
-      if parsed_body['matcher']
-        self.class.endpoints.unshift(
-          Matchers::RequestBodyMatcher.new(
-            http_method: http_method,
-            route: route,
-            response_code: status,
-            response_body: body,
-            headers: headers,
-            body_matches: parsed_body['matcher'],
-          )
-        )
-      else
-        self.class.endpoints.unshift(
-          Matchers::StaticRequestMatcher.new(
-            http_method: http_method,
-            route: route,
-            response_code: status,
-            response_body: body,
-            headers: headers
-          )
-        )
-      end
-      ''
-    end
-
-    delete '/response/*' do
-      route = "/#{params[:splat].first}"
-      http_method = parsed_body['method'].upcase
-
-      non_default_matchers = matchers(faux_request(http_method, route, request.body)).reject(&:default)
-      self.class.endpoints.delete_if { |endpoint| non_default_matchers.include?(endpoint) }
-      ''
-    end
-
     get '/' do
       erb :'index.html', layout: :'layout.html'
     end
 
     get '/ui/response/:method/*' do
-      route = "/#{params[:splat].first}"
       http_method = params['method'].upcase
       @config = matcher(faux_request(http_method, route, request.body))
       erb :'responses/form.html', layout: :'layout.html'
     end
 
+    get '/ui/requests/:method/*' do
+      http_method = params['method'].upcase
+      @config = matcher(faux_request(http_method, route, request.body))
+
+      erb :'requests/index.html', layout: :'layout.html'
+    end
+
     post '/ui/response/:method/*' do
-      route = "/#{params[:splat].first}"
       http_method = params['method'].upcase
       @config = matcher(faux_request(http_method, route, request.body))
       @config.overridden!
@@ -91,7 +52,6 @@ module HttpSim
     end
 
     delete '/ui/response/:method/*' do
-      route = "/#{params[:splat].first}"
       http_method = params['method'].upcase
 
       all_matching_matchers = matchers(faux_request(http_method, route, request.body))
@@ -101,12 +61,17 @@ module HttpSim
       redirect to '/'
     end
 
-    get '/ui/requests/:method/*' do
-      route = "/#{params[:splat].first}"
-      http_method = params['method'].upcase
-      @config = matcher(faux_request(http_method, route, request.body))
+    put '/response/*' do
+      self.class.endpoints.unshift(create_matcher_override(mimicked_request))
+      ''
+    end
 
-      erb :'requests/index.html', layout: :'layout.html'
+    delete '/response/*' do
+      all_matching_matchers = matchers(mimicked_request)
+      all_matching_matchers.each &:reset!
+      non_default_matchers = all_matching_matchers.reject(&:default)
+      self.class.endpoints.delete_if { |endpoint| non_default_matchers.include?(endpoint) }
+      ''
     end
 
     %i(get post put patch delete).each do |http_method|
@@ -117,21 +82,30 @@ module HttpSim
       end
     end
 
-    helpers do
-      def endpoints
-        self.class.endpoints.reject(&:overridden?)
-      end
+    private
 
-      def custom_matcher?(endpoint)
-        endpoint.custom_matcher? ? '(Custom matcher)' : ''
-      end
-
-      def config
-        @config
-      end
+    def create_matcher_override(request)
+      old_matcher = matcher(request)
+      config = matcher_overrides(old_matcher.response(request))
+      old_matcher.overridden!
+      Matcher.dupe_and_reconfigure(old_matcher, config)
     end
 
-    private
+    def matcher_overrides(old_config)
+      parsed_body.merge(
+        response_code: parsed_body.fetch('status', old_config[0]),
+        headers: parsed_body.fetch('headers', old_config[1]),
+        response_body: parsed_body.fetch('body', old_config[2]),
+      )
+    end
+
+    def mimicked_request
+      faux_request(http_method, route, request.body)
+    end
+
+    def http_method
+      parsed_body.fetch('method', params['method']).upcase
+    end
 
     def matcher(request)
       matchers(request).first
@@ -150,13 +124,13 @@ module HttpSim
       return @response_body if @response_body
 
       @response_body = case request.env['CONTENT_TYPE']
-                       when 'application/json' then
-                         JSON.parse(request.body.read)
-                       when 'application/xml' then
-                         Nokogiri::XML(request.body.read)
-                       else
-                         request.body.read
-                       end
+      when 'application/json' then
+        JSON.parse(request.body.read)
+      when 'application/xml' then
+        Nokogiri::XML(request.body.read)
+      else
+        request.body.read
+      end
     end
   end
 end

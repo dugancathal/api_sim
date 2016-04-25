@@ -22,6 +22,10 @@ module HttpSim
         request.body.rewind
         request.path == route && request.request_method == http_method && matcher.match(body)
       end
+
+      def match_on_body?
+        true
+      end
     end
   end
 end
