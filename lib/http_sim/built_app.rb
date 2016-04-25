@@ -33,6 +33,15 @@ class BuiltApp < Sinatra::Base
     ''
   end
 
+  delete '/response/*' do
+    route = "/#{params[:splat].first}"
+    http_method = parsed_body['method'].upcase
+
+    non_default_matchers = matchers(faux_request(http_method, route, request.body)).reject(&:default)
+    self.class.endpoints.delete_if {|endpoint| non_default_matchers.include?(endpoint) }
+    ''
+  end
+
   %i(get post put patch delete).each do |http_method|
     public_send(http_method, '/*') do
       matcher(request).response(request)
@@ -42,9 +51,11 @@ class BuiltApp < Sinatra::Base
   private
 
   def matcher(request)
-    self.class.endpoints.find(ON_NO_MATCHER_FOUND) do |matcher|
-      matcher.matches?(request)
-    end
+    matchers(request).first
+  end
+
+  def matchers(request)
+    self.class.endpoints.select { |matcher| matcher.matches?(request) }
   end
 
   def faux_request(method='', path='', body='')

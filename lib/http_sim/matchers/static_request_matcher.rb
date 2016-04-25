@@ -2,9 +2,10 @@ module HttpSim
   class AppBuilder
     class StaticRequestMatcher
       DEFAULT_RACK_RESPONSE=[200, {}, '']
-      attr_reader :http_method, :route, :response, :headers, :response_code, :matcher, :response_body
+      attr_reader :http_method, :route, :response, :headers, :response_code, :matcher, :response_body, :default
 
-      def initialize(http_method:, route:, response_code: 200, response_body: '', headers: {}, matcher: ->(req) { true })
+      def initialize(http_method:, route:, response_code: 200, response_body: '', headers: {}, default: false, matcher: ->(req) { true })
+        @default = default
         @matcher = matcher
         @headers = headers
         @response_body = response_body

@@ -20,6 +20,7 @@ module HttpSim
               route: route,
               response_code: response_code,
               headers: headers,
+              default: true,
               response_body: response_body
           )
       )
@@ -30,6 +31,7 @@ module HttpSim
           DynamicRequestMatcher.new(
               http_method: http_method,
               route: route,
+              default: true,
               response_generator: response_logic
           )
       )
@@ -44,6 +46,7 @@ module HttpSim
                 response_code: response[0],
                 headers: response[1],
                 response_body: response[2],
+                default: true,
                 matcher: ->(req) do
                   body = req.body; matcher.match(body)
                 end

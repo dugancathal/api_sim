@@ -89,6 +89,19 @@ describe HttpSim do
     expect(response.headers['X-CUSTOM-HEADER']).to eq 'accepted'
   end
 
+  it 'can reset to the default response' do
+    update_response = make_request_to('PUT', '/response/endpoint', {body: 'new body', method: 'get'}.to_json)
+    expect(update_response).to be_ok
+
+    delete_response = make_request_to('DELETE', '/response/endpoint', {method: 'get'}.to_json)
+    expect(delete_response).to be_ok
+
+    response = make_request_to('GET', '/endpoint', '')
+    expect(response).to be_ok
+    expect(response.body).to eq ['Hi!']
+    expect(response.headers).to include('X-CUSTOM-HEADER' => 'easy as abc')
+  end
+
   private
   def make_request_to(http_method, path, body, mime_type='application/json')
     env = {'rack.input' => body, 'REQUEST_METHOD' => http_method.upcase, 'PATH_INFO' => path, 'HTTP_CONTENT_TYPE' => mime_type}
