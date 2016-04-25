@@ -3,6 +3,7 @@
   <thead>
   <tr>
     <th>Simulated endpoint</th>
+    <th>Body Match?</th>
     <th>Response</th>
     <th>Requests</th>
     <th></th>
@@ -12,10 +13,9 @@
   <% endpoints.each do |endpoint| %>
       <tr>
         <td><%= endpoint.http_method %> <%= endpoint.route %> <%= custom_matcher?(endpoint) %></td>
+        <td><%= endpoint.match_on_body? ? "/#{endpoint.matcher.source}/" : '' %></td>
         <td>
-          <a href="/ui/response/<%= endpoint.http_method %><%= endpoint.route %>">
-            <%= endpoint.route %>
-          </a>
+          <%= link_to_response_edit endpoint %>
         </td>
         <td>
           <a href="/ui/requests/<%= endpoint.http_method %><%= endpoint.route %>">

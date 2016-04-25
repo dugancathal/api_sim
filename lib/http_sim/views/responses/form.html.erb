@@ -2,19 +2,27 @@
   <h1>Simulators</h1>
   <h2>Response for <%= config.http_method %> <%= config.route %></h2>
 </div>
-<form action="/ui/response/<%=config.http_method%><%= config.route %>" method="post">
+<form action="/ui/response/<%= config.http_method %><%= config.route %>" method="post">
   <div class="row">
     <div class="col-md-6">
       <div class="form-group">
-        <label for="response-code">Status code</label>
-        <input type="text" class="form-control" id="response-code" name="response-code" value="<%= config.response_code %>">
+        <label for="status">Status code</label>
+        <input type="text" class="form-control" id="status" name="status" value="<%= config.response_code %>">
       </div>
+
+      <% if config.match_on_body? %>
+          <div class="form-group">
+            <label for="match">Match body on</label>
+            <input type="text" class="form-control" id="match" name="match" disabled="disabled" value="<%= config.matcher.source %>"/>
+            <input type="hidden" id="match" name="match" value="<%= config.matcher.source %>"/>
+          </div>
+      <% end %>
     </div>
 
     <div class="col-md-6">
       <div class="form-group">
-        <label for="response-body">Response body</label>
-        <textarea class="form-control" id="response-body" name="response-body"><%= config.response_body %></textarea>
+        <label for="body">Response body</label>
+        <textarea class="form-control" id="body" name="body"><%= config.response_body %></textarea>
       </div>
     </div>
 

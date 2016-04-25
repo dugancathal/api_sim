@@ -22,38 +22,24 @@ module HttpSim
     end
 
     get '/ui/response/:method/*' do
-      http_method = params['method'].upcase
-      @config = matcher(faux_request(http_method, route, request.body))
+      @config = matcher(faux_request(http_method, route, faux_body))
       erb :'responses/form.html', layout: :'layout.html'
     end
 
     get '/ui/requests/:method/*' do
-      http_method = params['method'].upcase
       @config = matcher(faux_request(http_method, route, request.body))
 
       erb :'requests/index.html', layout: :'layout.html'
     end
 
     post '/ui/response/:method/*' do
-      http_method = params['method'].upcase
-      @config = matcher(faux_request(http_method, route, request.body))
-      @config.overridden!
-
-      new_config = Matchers::StaticRequestMatcher.new(
-        http_method: http_method,
-        route: route,
-        response_code: params['response-code'].to_i,
-        response_body: params['response-body'],
-        headers: @config.headers
-      )
+      new_config = create_matcher_override(mimicked_request)
 
       self.class.endpoints.unshift(new_config)
       redirect to '/'
     end
 
     delete '/ui/response/:method/*' do
-      http_method = params['method'].upcase
-
       all_matching_matchers = matchers(faux_request(http_method, route, request.body))
       all_matching_matchers.each &:reset!
       non_default_matchers = all_matching_matchers.reject(&:default)
@@ -93,9 +79,10 @@ module HttpSim
 
     def matcher_overrides(old_config)
       parsed_body.merge(
-        response_code: parsed_body.fetch('status', old_config[0]),
+        response_code: parsed_body.fetch('status', old_config[0]).to_i,
         headers: parsed_body.fetch('headers', old_config[1]),
         response_body: parsed_body.fetch('body', old_config[2]),
+        matcher: parsed_body.fetch('match', '')
       )
     end
 
@@ -120,6 +107,10 @@ module HttpSim
       Rack::Request.new({'rack.input' => body, 'REQUEST_METHOD' => method, 'PATH_INFO' => path})
     end
 
+    def faux_body
+      StringIO.new(params[:match].to_s)
+    end
+
     def parsed_body
       return @response_body if @response_body
 
@@ -128,9 +119,13 @@ module HttpSim
         JSON.parse(request.body.read)
       when 'application/xml' then
         Nokogiri::XML(request.body.read)
+      when 'application/x-www-form-urlencoded' then
+        params
       else
         request.body.read
       end
+
+      @response_body.empty? ? {} : @response_body
     end
   end
 end

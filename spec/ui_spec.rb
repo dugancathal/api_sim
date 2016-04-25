@@ -15,7 +15,7 @@ describe 'App UI' do
         [201, {'X-CUSTOM-HEADER' => '123'}, 'Howdy!']
       }
 
-      configure_matcher_endpoint 'GET', '/matcher', {
+      configure_matcher_endpoint 'POST', '/matcher', {
         /key1/ => [202, {'X-CUSTOM-HEADER' => 'accepted'}, 'Yo!'],
         /key2/ => [203, {'X-CUSTOM-HEADER' => 'I got this elsewhere'}, 'Yo!'],
       }
@@ -29,7 +29,8 @@ describe 'App UI' do
     expect(page).to have_content '/dynamic'
     expect(page).to have_content '/matcher'
 
-    expect(page).to have_css 'tr', text: 'Custom matcher', count: 2
+    expect(page).to have_css 'tr', text: 'key1'
+    expect(page).to have_css 'tr', text: 'key2'
   end
 
   it 'does not show the overriden matchers' do
@@ -103,5 +104,21 @@ describe 'App UI' do
 
     expect(page).to have_content 'Requests to GET /endpoint'
     expect(page).to have_content 'X-CUSTOM-HEADER: foo bar!'
+  end
+
+  it 'can modify regexp/body matchers' do
+    visit '/'
+
+    within 'tr', text: 'key1' do
+      click_on '/matcher'
+    end
+
+    expect(page).to have_content 'Response for POST /matcher'
+    expect(page).to have_field 'Match body on', with: 'key1', disabled: true
+    fill_in 'Response body', with: 'Hola friend'
+    click_on 'Save'
+
+    response = post '/matcher', 'key1'
+    expect(response.body).to eq 'Hola friend'
   end
 end
