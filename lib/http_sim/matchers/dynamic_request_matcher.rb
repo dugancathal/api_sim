@@ -21,6 +21,10 @@ module HttpSim
       def response(request)
         response_generator.call(request)
       end
+
+      def readonly?
+        true
+      end
     end
   end
 end
