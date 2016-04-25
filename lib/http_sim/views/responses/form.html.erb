@@ -1,0 +1,25 @@
+<div class="page-header">
+  <h1>Simulators</h1>
+  <h2>Response for <%= config.http_method %> <%= config.route %></h2>
+</div>
+<form action="/ui/response/<%=config.http_method%><%= config.route %>" method="post">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="form-group">
+        <label for="response-code">Status code</label>
+        <input type="text" class="form-control" id="response-code" name="response-code" value="<%= config.response_code %>">
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="form-group">
+        <label for="response-body">Response body</label>
+        <textarea class="form-control" id="response-body" name="response-body"><%= config.response_body %></textarea>
+      </div>
+    </div>
+
+    <div class="form-actions pull-right">
+      <button class='btn btn-primary' type="submit">Save</button>
+    </div>
+  </div>
+</form>

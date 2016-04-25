@@ -1,10 +1,12 @@
-module HttpSim
-  class AppBuilder
-    class DynamicRequestMatcher
-      attr_reader :response_generator, :route, :matcher, :http_method, :default
-      DEFAULT_RACK_RESPONSE=[200, {}, '']
+require 'http_sim/recorded_request'
+require 'http_sim/matchers/base_matcher'
 
-      def initialize(http_method:, route:, response_generator:, default: false, matcher: ->(req) { true })
+module HttpSim
+  module Matchers
+    class DynamicRequestMatcher < BaseMatcher
+      attr_reader :response_generator, :route, :http_method, :default, :matcher
+
+      def initialize(http_method:, route:, response_generator:, default: false, matcher: ALWAYS_TRUE_MATCHER)
         @matcher = matcher
         @route = route
         @http_method = http_method

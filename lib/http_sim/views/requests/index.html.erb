@@ -1,0 +1,26 @@
+<div class="page-header">
+    <h1>Simulators</h1>
+    <h2>Requests to <%= config.http_method %> <%= config.route %></h2>
+</div>
+<table class="table">
+    <thead>
+    <tr>
+        <th>Time</th>
+        <th>Body</th>
+        <th>Headers</th>
+    </tr>
+    </thead>
+    <tbody>
+    <% config.requests.each do |request| %>
+        <tr>
+            <td><%= request.time %></td>
+            <td><%= request.body %></td>
+            <td>
+              <% request.headers.each do |header, value| %>
+                <p><%= header %>: <%= value %></p>
+              <% end %>
+            </td>
+        </tr>
+    <% end %>
+    </tbody>
+</table>

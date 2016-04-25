@@ -1,0 +1,34 @@
+<h2>Simulators</h2>
+<table>
+  <thead>
+  <tr>
+    <th>Simulated endpoint</th>
+    <th>Response</th>
+    <th>Requests</th>
+    <th></th>
+  </tr>
+  </thead>
+  <tbody>
+  <% endpoints.each do |endpoint| %>
+      <tr>
+        <td><%= endpoint.http_method %> <%= endpoint.route %> <%= custom_matcher?(endpoint) %></td>
+        <td>
+          <a href="/ui/response/<%= endpoint.http_method %><%= endpoint.route %>">
+            <%= endpoint.route %>
+          </a>
+        </td>
+        <td>
+          <a href="/ui/requests/<%= endpoint.http_method %><%= endpoint.route %>">
+            <%= endpoint.requests.count %>
+          </a>
+        </td>
+        <td>
+          <form action="/ui/response/<%= endpoint.http_method %><%= endpoint.route %>" method="post">
+            <input type="hidden" value="delete" name="_method">
+            <button class='btn-link' type="submit">Reset</button>
+          </form>
+        </td>
+      </tr>
+  <% end %>
+  </tbody>
+</table>

@@ -1,10 +1,12 @@
-module HttpSim
-  class AppBuilder
-    class StaticRequestMatcher
-      DEFAULT_RACK_RESPONSE=[200, {}, '']
-      attr_reader :http_method, :route, :response, :headers, :response_code, :matcher, :response_body, :default
+require 'http_sim/recorded_request'
+require 'http_sim/matchers/base_matcher'
 
-      def initialize(http_method:, route:, response_code: 200, response_body: '', headers: {}, default: false, matcher: ->(req) { true })
+module HttpSim
+  module Matchers
+    class StaticRequestMatcher < BaseMatcher
+      attr_reader :http_method, :route, :headers, :response_code, :matcher, :response_body, :default
+
+      def initialize(http_method:, route:, response_code: 200, response_body: '', headers: {}, default: false, matcher: ALWAYS_TRUE_MATCHER)
         @default = default
         @matcher = matcher
         @headers = headers
@@ -18,8 +20,29 @@ module HttpSim
         request.path == route && request.request_method == http_method && matcher.call(request)
       end
 
-      def response(_)
-        [response_code, headers, response_body]
+      def custom_matcher?
+        matcher != ALWAYS_TRUE_MATCHER
+      end
+
+      def overridden!
+        @overridden = true
+      end
+
+      def overridden?
+        !!@overridden
+      end
+
+      def reset!
+        @overridden = false
+      end
+
+      def requests
+        @requests ||= []
+      end
+
+      def record_request(request)
+        request.body.rewind
+        requests.push(RecordedRequest.new(body: request.body.read, request_env: request.env))
       end
     end
   end
