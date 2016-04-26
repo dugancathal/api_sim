@@ -14,7 +14,7 @@
     <% config.requests.each do |request| %>
         <tr>
             <td><%= request.time %></td>
-            <td><%= request.body %></td>
+            <td><%= h request.body %></td>
             <td>
               <% request.headers.each do |header, value| %>
                 <p><%= header %>: <%= value %></p>

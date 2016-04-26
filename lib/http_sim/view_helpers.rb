@@ -1,7 +1,7 @@
 module HttpSim
   module ViewHelpers
     def endpoints
-      self.class.endpoints.reject(&:overridden?).sort_by {|endpoint| [endpoint.http_method, endpoint.route].join(' ') }
+      self.class.endpoints.reject(&:overridden?).sort_by { |endpoint| [endpoint.http_method, endpoint.route].join(' ') }
     end
 
     def custom_matcher?(endpoint)
@@ -23,6 +23,10 @@ module HttpSim
         #{endpoint.route}
       </a>
       HTML
+    end
+
+    def h(text)
+      Rack::Utils.escape_html(text)
     end
 
     def link_to_read_requests(endpoint)
