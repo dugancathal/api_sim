@@ -34,9 +34,9 @@ app = HttpSim.build_app do
     [201, {'X-CUSTOM-HEADER' => '123'}, 'Howdy!']
   }
 
-  configure_matcher_endpoint 'POST', '/matcher', {
-    /key1/ => [202, {'X-CUSTOM-HEADER' => 'accepted'}, 'Yo!'],
-    /key2/ => [203, {'X-CUSTOM-HEADER' => 'I got this elsewhere'}, 'Yo!'],
+  configure_matcher_endpoint 'POST', '/soap', {
+    /Operation1/ => [200, {'Content-Type' => 'text/xml+soap'}, '<xml>Response1</xml>'],
+    /Operation2/ => [500, {'Content-Type' => 'text/xml+soap'}, '<xml>Response2</xml>'],
   }
 end
 
