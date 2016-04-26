@@ -105,7 +105,7 @@ module HttpSim
     end
 
     def matcher(request)
-      matchers(request).first
+      matchers(request).first || halt(404)
     end
 
     def matchers(request)

@@ -55,7 +55,7 @@ describe HttpSim do
 
   it 'blows up when it has not configured an endpoint' do
     response = get '/matcher'
-    expect(response.status).to eq 500
+    expect(response.status).to eq 404
   end
 
   it 'allows modification of the response for an endpoint' do
