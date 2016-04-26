@@ -106,6 +106,17 @@ describe 'App UI' do
     expect(page).to have_content 'X-CUSTOM-HEADER: foo bar!'
   end
 
+  it 'can show requests to the matcher endpoint' do
+    post '/matcher', '<soapyOperation>key1</soapyOperation>'
+
+    visit '/'
+    within 'tr', text: 'key1' do
+      click_on '1'
+    end
+
+    expect(page).to have_css 'td', text: '<soapyOperation>key1</soapyOperation>'
+  end
+
   it 'can modify regexp/body matchers' do
     visit '/'
 

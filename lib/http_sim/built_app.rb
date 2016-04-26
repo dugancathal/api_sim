@@ -28,7 +28,7 @@ module HttpSim
     end
 
     get '/ui/requests/:method/*' do
-      @config = matcher(faux_request(http_method, route, request.body))
+      @config = matcher(faux_request(http_method, route, faux_body))
 
       erb :'requests/index.html', layout: :'layout.html'
     end
@@ -132,7 +132,11 @@ module HttpSim
       when 'application/x-www-form-urlencoded' then
         params
       else
-        request.body.read
+        if request.path =~ /ui/
+          params
+        else
+          request.body.read
+        end
       end
 
       @response_body.empty? ? {} : @response_body

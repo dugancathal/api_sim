@@ -24,5 +24,14 @@ module HttpSim
       </a>
       HTML
     end
+
+    def link_to_read_requests(endpoint)
+      match = endpoint.match_on_body? ? endpoint.matcher.source : ''
+      <<-HTML
+        <a href="/ui/requests/#{endpoint.http_method}#{endpoint.route}?match=#{match}">
+          #{endpoint.requests.count}
+        </a>
+      HTML
+    end
   end
 end

@@ -22,9 +22,7 @@
           <% end %>
         </td>
         <td>
-          <a href="/ui/requests/<%= endpoint.http_method %><%= endpoint.route %>">
-            <%= endpoint.requests.count %>
-          </a>
+          <%= link_to_read_requests endpoint %>
         </td>
         <td>
           <form action="/ui/response/<%= endpoint.http_method %><%= endpoint.route %>" method="post">

@@ -18,6 +18,7 @@ describe HttpSim do
       configure_matcher_endpoint 'POST', '/matcher', {
         /key1/ => [202, {'X-CUSTOM-HEADER' => 'accepted'}, 'Yo1!'],
         /key2/ => [203, {'X-CUSTOM-HEADER' => 'I got this elsewhere'}, 'Yo2!'],
+        /getAccountProfileResponse/ => [203, {'X-CUSTOM-HEADER' => 'I got this elsewhere'}, 'You done soap-ed it good'],
       }
     end
   end
@@ -110,6 +111,24 @@ describe HttpSim do
     expect(response).to be_ok
     expect(response.body).to eq 'Hi!'
     expect(response.headers).to include('X-CUSTOM-HEADER' => 'easy as abc')
+  end
+
+  it 'can do matcher requests with XML data' do
+    response = post '/matcher', <<-SOAP
+      <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+        <SOAP-ENV:Header/>
+        <SOAP-ENV:Body>
+          <v13_0:getAccountProfileResponse xmlns:v13_0="http://www.dishnetwork.com/wsdl/AccountManagement/AccountManagement-v13.0">
+            <serviceResponseContext>
+              <displayMessage>1021InvalidSpaDisplayMessage</displayMessage>
+            </serviceResponseContext>
+          </v13_0:getAccountProfileResponse>
+        </SOAP-ENV:Body>
+      </SOAP-ENV:Envelope>
+    SOAP
+
+    expect(response.status).to eq 203
+    expect(response.body).to eq 'You done soap-ed it good'
   end
 
   private
