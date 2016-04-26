@@ -1,5 +1,7 @@
 # HttpSim
 
+![Build Tag](https://travis-ci.org/dugancathal/http_sim.svg?branch=master)
+
 An HTTP API DSL on top of Sinatra.
 
 ## Installation
