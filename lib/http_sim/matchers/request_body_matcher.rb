@@ -27,6 +27,12 @@ module HttpSim
       def match_on_body?
         true
       end
+
+      def to_s
+        <<-DOC.gsub(/^\s+/, '')
+          #{http_method} #{route} /#{matcher.source}/ -> (#{response_code}) #{response_body[0..20]}...
+        DOC
+      end
     end
   end
 end

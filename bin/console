@@ -3,12 +3,29 @@
 require "bundler/setup"
 require "http_sim"
 
-# You can add fixtures and/or initialization code here to make experimenting
-# with your gem easier. You can also use a different console, if you like.
+puts <<-RUBY
+#
+# Welcome to HttpSim!
+#
+# You can boot a sample app by running the following
+sample_app = HttpSim.build_app do
+  configure_endpoint 'GET' , '/my-endpoint', 'Returns Hello!', 202
+end
 
-# (If you use this, don't forget to add pry to your Gemfile!)
-# require "pry"
-# Pry.start
+# You can inspect the endpoints that this app has:
+puts "=" * 50, sample_app.endpoints, "=" * 50
+
+# You can run that app one of two ways.
+# Synchronously (you'll need to open a new window to play with the server):
+sample_app.run!
+
+# Asynchronously (to continue playing in this window):
+Thread.new { sample_app.run! }
+
+# You can stop the synchronous app by pressing CTRL+c.
+# If running asynchronously, you can stop by simply exiting the console.
+#
+RUBY
 
 require "irb"
 IRB.start

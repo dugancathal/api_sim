@@ -25,6 +25,12 @@ module HttpSim
       def readonly?
         true
       end
+
+      def to_s
+        <<-DOC.gsub(/^\s+/, '')
+          #{http_method} #{route} -> DYNAMIC BASED ON REQUEST
+        DOC
+      end
     end
   end
 end

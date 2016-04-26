@@ -41,6 +41,12 @@ module HttpSim
         @requests ||= []
       end
 
+      def to_s
+        <<-DOC.gsub(/^\s+/, '')
+          #{http_method} #{route} -> (#{response_code}) #{response_body[0..20]}...
+        DOC
+      end
+
       def record_request(request)
         request.body.rewind
         requests.push(RecordedRequest.new(body: request.body.read, request_env: request.env))
