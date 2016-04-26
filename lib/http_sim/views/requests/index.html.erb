@@ -13,12 +13,14 @@
     <tbody>
     <% config.requests.each do |request| %>
         <tr>
-            <td><%= request.time %></td>
-            <td><%= h request.body %></td>
+            <th class="header-column"><p><%= request.time %></p></th>
+            <td><p><%= h request.body %></p></td>
             <td>
+              <ul>
               <% request.headers.each do |header, value| %>
-                <p><%= header %>: <%= value %></p>
+                <li><%= header %>: <%= value %></li>
               <% end %>
+              </ul>
             </td>
         </tr>
     <% end %>

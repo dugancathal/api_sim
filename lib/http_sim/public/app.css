@@ -1,3 +1,7 @@
 form {
     margin: 0;
 }
+
+.header-column {
+    max-width: 12em;
+}
