@@ -127,7 +127,7 @@ module HttpSim
       @response_body = case request.env['CONTENT_TYPE']
       when 'application/json' then
         JSON.parse(request.body.read)
-      when 'application/xml' then
+      when 'text/xml' then
         Nokogiri::XML(request.body.read)
       when 'application/x-www-form-urlencoded' then
         params
