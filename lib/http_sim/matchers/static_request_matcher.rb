@@ -18,7 +18,7 @@ module HttpSim
       end
 
       def matches?(request)
-        request.path == route && request.request_method == http_method && matcher.call(request)
+        matches_dynamic_path?(request) && request.request_method == http_method && matcher.call(request)
       end
 
       def custom_matcher?
@@ -50,6 +50,16 @@ module HttpSim
       def record_request(request)
         request.body.rewind
         requests.push(RecordedRequest.new(body: request.body.read, request_env: request.env))
+      end
+
+      def matches_dynamic_path?(request)
+        route_tokens = route.split('/')
+        request_tokens = request.path.split('/')
+        matches = true
+        for i in 0..route_tokens.size-1 do
+          matches &&= route_tokens[i] == request_tokens[i] unless route_tokens[i].start_with?(':')
+        end
+        matches
       end
     end
   end
