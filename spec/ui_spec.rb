@@ -10,14 +10,16 @@ describe 'App UI' do
   before do
     @app = HttpSim.build_app do
       configure_endpoint 'GET', '/endpoint', 'Hi!', 200, {'X-CUSTOM-HEADER' => 'easy as abc', 'CONTENT-TYPE' => 'application/json'}
+      configure_endpoint 'GET', '/begin/:middle/end', 'You found an any-value path', 200, {'CONTENT-TYPE' => 'application/json'}
+      configure_endpoint 'GET', '/begin:end', 'I am not a dynamic path', 200, {'CONTENT-TYPE' => 'application/json'}
 
       configure_dynamic_endpoint 'GET', '/dynamic', ->(req) {
         [201, {'X-CUSTOM-HEADER' => '123'}, 'Howdy!']
       }
 
       configure_matcher_endpoint 'POST', '/matcher', {
-        /key1/ => [202, {'X-CUSTOM-HEADER' => 'accepted'}, 'Yo!'],
-        /key2/ => [203, {'X-CUSTOM-HEADER' => 'I got this elsewhere'}, 'Yo!'],
+        /key1/ => [202, {'X-CUSTOM-HEADER' => 'accepted'}, 'Yo1!'],
+        /key2/ => [203, {'X-CUSTOM-HEADER' => 'I got this elsewhere'}, 'Yo2!'],
       }
     end
     Capybara.app = @app
@@ -59,7 +61,7 @@ describe 'App UI' do
     expect(response.body).to eq 'New UI Body'
   end
 
-  it 'can reset the matcher' do
+  it 'can reset the endpoint' do
     visit '/'
 
     click_on '/endpoint'
@@ -146,5 +148,13 @@ describe 'App UI' do
     click_on 'Save'
 
     expect(page).to have_css 'tr', text: '/endpoint'
+  end
+
+  it 'supports dynamic values in the endpoint address' do
+    response = get '/begin/gooeyCenter/end', 'This is the request'
+    expect(response.body).to eq 'You found an any-value path'
+
+    fixed_response = get '/begin:notEnd', 'This is the request'
+    expect(fixed_response.status).to eq 404
   end
 end
