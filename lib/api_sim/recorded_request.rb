@@ -1,4 +1,4 @@
-module HttpSim
+module ApiSim
   class RecordedRequest
     attr_reader :time, :headers, :body
 

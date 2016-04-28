@@ -1,8 +1,8 @@
-require 'http_sim/matchers/dynamic_request_matcher'
-require 'http_sim/matchers/static_request_matcher'
-require 'http_sim/matchers/request_body_matcher'
+require 'api_sim/matchers/dynamic_request_matcher'
+require 'api_sim/matchers/static_request_matcher'
+require 'api_sim/matchers/request_body_matcher'
 
-module HttpSim
+module ApiSim
   class Matcher
     OVERRIDE_CLASS_MAP = {
       Matchers::DynamicRequestMatcher => Matchers::StaticRequestMatcher,

@@ -1,7 +1,7 @@
-require 'http_sim/recorded_request'
-require 'http_sim/matchers/base_matcher'
+require 'api_sim/recorded_request'
+require 'api_sim/matchers/base_matcher'
 
-module HttpSim
+module ApiSim
   module Matchers
     class StaticRequestMatcher < BaseMatcher
       attr_reader :http_method, :route, :headers, :response_code, :matcher, :response_body, :default, :schema

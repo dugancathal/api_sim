@@ -1,7 +1,7 @@
-require 'http_sim/built_app'
-require 'http_sim/matchers'
+require 'api_sim/built_app'
+require 'api_sim/matchers'
 
-module HttpSim
+module ApiSim
   class AppBuilder
     NOT_FOUND = [nil, [404, {}, 'NOT FOUND']]
 

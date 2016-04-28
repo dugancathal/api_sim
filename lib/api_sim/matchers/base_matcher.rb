@@ -1,6 +1,6 @@
-require 'http_sim/recorded_request'
+require 'api_sim/recorded_request'
 
-module HttpSim
+module ApiSim
   module Matchers
     class BaseMatcher
       DEFAULT_RACK_RESPONSE=[200, {}, '']

@@ -2,10 +2,10 @@ require 'sinatra/base'
 require 'nokogiri'
 require 'json'
 require 'tilt/erb'
-require 'http_sim/view_helpers'
+require 'api_sim/view_helpers'
 require 'json-schema'
 
-module HttpSim
+module ApiSim
   class BuiltApp < Sinatra::Base
     use Rack::MethodOverride
 

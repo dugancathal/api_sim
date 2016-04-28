@@ -1,14 +1,14 @@
 #!/usr/bin/env ruby
 
 require "bundler/setup"
-require "http_sim"
+require "api_sim"
 
 puts <<-RUBY
 #
-# Welcome to HttpSim!
+# Welcome to ApiSim!
 #
 # You can boot a sample app by running the following
-sample_app = HttpSim.build_app do
+sample_app = ApiSim.build_app do
   configure_endpoint 'GET' , '/my-endpoint', 'Returns Hello!', 202
 end
 

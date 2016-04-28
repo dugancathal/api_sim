@@ -1,18 +1,18 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'http_sim/version'
+require 'api_sim/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "http_sim"
-  spec.version       = HttpSim::VERSION
+  spec.name          = "api_sim"
+  spec.version       = ApiSim::VERSION
   spec.authors       = ["TJ Taylor"]
   spec.email         = ["dugancathal@gmail.com"]
   spec.licenses      = ['MIT']
 
   spec.summary       = %q{A DSL on top of sinatra for building application simulators}
   spec.description   = %q{A DSL on top of sinatra for building application simulators}
-  spec.homepage      = "https://github.com/dugancathal/http_sim"
+  spec.homepage      = "https://github.com/dugancathal/api_sim"
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.bindir        = "exe"

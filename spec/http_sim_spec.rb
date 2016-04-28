@@ -1,14 +1,14 @@
 require 'spec_helper'
 require 'rack/test'
 
-describe HttpSim do
+describe ApiSim do
   include Rack::Test::Methods
   def app
     @app
   end
 
   before do
-    @app = HttpSim.build_app do
+    @app = ApiSim.build_app do
       configure_endpoint 'GET', '/endpoint', 'Hi!', 200, {'X-CUSTOM-HEADER' => 'easy as abc'}
 
       configure_dynamic_endpoint 'GET', '/dynamic', ->(req) {
