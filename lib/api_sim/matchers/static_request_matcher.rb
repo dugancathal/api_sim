@@ -55,11 +55,10 @@ module ApiSim
       def matches_dynamic_path?(request)
         route_tokens = route.split('/')
         request_tokens = request.path.split('/')
-        matches = true
-        for i in 0..route_tokens.size-1 do
-          matches &&= route_tokens[i] == request_tokens[i] unless route_tokens[i].start_with?(':')
+
+        route_tokens.zip(request_tokens).all? do |matcher_part, request_part|
+          matcher_part == request_part || matcher_part.start_with?(':')
         end
-        matches
       end
     end
   end
