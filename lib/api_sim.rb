@@ -1,7 +1,7 @@
-require "http_sim/version"
-require 'http_sim/app_builder'
+require "api_sim/version"
+require 'api_sim/app_builder'
 
-module HttpSim
+module ApiSim
   def self.build_app(&block)
     configuration = AppBuilder.new
     configuration.instance_eval &block

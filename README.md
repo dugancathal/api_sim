@@ -1,6 +1,6 @@
-# HttpSim
+# ApiSim
 
-![Build Tag](https://travis-ci.org/dugancathal/http_sim.svg?branch=master)
+![Build Tag](https://travis-ci.org/dugancathal/api_sim.svg?branch=master)
 
 An HTTP API DSL on top of Sinatra.
 
@@ -9,7 +9,7 @@ An HTTP API DSL on top of Sinatra.
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'http_sim'
+gem 'api_sim'
 ```
 
 And then execute:
@@ -18,16 +18,16 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install http_sim
+    $ gem install api_sim
 
 ## Example usage
 
 ```ruby
-require 'http_sim'
+require 'api_sim'
 
 ENDPOINT_JSON_SCHEMA = {"type": "object", "properties": {"a": {"type": "integer"}}}.to_json
 
-app = HttpSim.build_app do
+app = ApiSim.build_app do
   configure_endpoint 'GET', '/endpoint', 'Hi!', 200, {'X-CUSTOM-HEADER' => 'easy as abc'}, ENDPOINT_JSON_SCHEMA
 
   configure_dynamic_endpoint 'GET', '/dynamic', ->(req) {
@@ -60,4 +60,4 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/dugancathal/http_sim.
+Bug reports and pull requests are welcome on GitHub at https://github.com/dugancathal/api_sim.

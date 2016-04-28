@@ -8,7 +8,7 @@ describe 'App UI' do
   end
 
   before do
-    @app = HttpSim.build_app do
+    @app = ApiSim.build_app do
       configure_endpoint 'GET', '/endpoint', 'Hi!', 200, {'X-CUSTOM-HEADER' => 'easy as abc', 'CONTENT-TYPE' => 'application/json'}
       configure_endpoint 'GET', '/begin/:middle/end', 'You found an any-value path', 200, {'CONTENT-TYPE' => 'application/json'}
       configure_endpoint 'GET', '/begin:end', 'I am not a dynamic path', 200, {'CONTENT-TYPE' => 'application/json'}

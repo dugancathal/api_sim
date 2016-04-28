@@ -1,3 +1,3 @@
-module HttpSim
+module ApiSim
   VERSION = "0.1.0"
 end

@@ -1,4 +1,4 @@
-module HttpSim
+module ApiSim
   module ViewHelpers
     def endpoints
       self.class.endpoints.reject(&:overridden?).sort_by { |endpoint| [endpoint.http_method, endpoint.route].join(' ') }
