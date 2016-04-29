@@ -18,7 +18,7 @@ module ApiSim
       end
 
       def matches?(request)
-        request.path == route && request.request_method == http_method && matcher.call(request)
+        matches_dynamic_path?(request) && request.request_method == http_method && matcher.call(request)
       end
 
       def custom_matcher?
@@ -50,6 +50,15 @@ module ApiSim
       def record_request(request)
         request.body.rewind
         requests.push(RecordedRequest.new(body: request.body.read, request_env: request.env))
+      end
+
+      def matches_dynamic_path?(request)
+        route_tokens = route.split('/')
+        request_tokens = request.path.split('/')
+
+        route_tokens.zip(request_tokens).all? do |matcher_part, request_part|
+          matcher_part == request_part || matcher_part.start_with?(':')
+        end
       end
     end
   end
