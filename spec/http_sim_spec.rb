@@ -113,6 +113,22 @@ describe ApiSim do
     expect(response.headers).to include('X-CUSTOM-HEADER' => 'easy as abc')
   end
 
+  it 'deletes the requests upon reset' do
+    put '/response/endpoint', {body: 'new body', method: 'get'}.to_json, 'CONTENT_TYPE' => 'application/json'
+    requests_response = get '/requests/endpoint'
+    expect(JSON.parse(requests_response.body)).to eq []
+
+    get '/endpoint'
+    requests_response = get '/requests/endpoint'
+    expect(JSON.parse(requests_response.body).count).to eq 1
+
+    delete_response = delete '/response/endpoint', {method: 'get'}.to_json, 'CONTENT_TYPE' => 'application/json'
+    expect(delete_response).to be_ok
+
+    requests_response = get '/requests/endpoint'
+    expect(JSON.parse(requests_response.body)).to eq []
+  end
+
   it 'can do matcher requests with XML data' do
     response = post '/matcher', <<-SOAP
       <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
@@ -129,6 +145,20 @@ describe ApiSim do
 
     expect(response.status).to eq 203
     expect(response.body).to eq 'You done soap-ed it good'
+  end
+
+  it 'can request requests' do
+    put '/response/endpoint', {body: 'new body', method: 'get'}.to_json, 'CONTENT_TYPE' => 'application/json'
+
+    requests_response = get '/requests/endpoint'
+    expect(JSON.parse(requests_response.body)).to eq []
+
+    get '/endpoint'
+
+    requests_response = get '/requests/endpoint'
+    expect(requests_response).to be_ok
+    requests = JSON.parse(requests_response.body)
+    expect(requests.count).to eq 1
   end
 
   private

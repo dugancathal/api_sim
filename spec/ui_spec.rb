@@ -85,6 +85,43 @@ describe 'App UI' do
     expect(response.body).to eq 'Hi!'
   end
 
+  it 'resets the number of times a request has been made to an endpoint' do
+    get '/endpoint'
+    get '/endpoint'
+    get '/endpoint'
+
+    visit '/'
+
+    expect(page).to have_css 'tr', text: '3'
+
+    within 'tr', text: '/endpoint' do
+      click_on 'Reset'
+    end
+
+    visit '/'
+
+    expect(page).to_not have_css 'tr', text: 3
+  end
+
+  it 'resets the body of custom matchers' do
+    visit '/'
+
+    within 'tr', text: '/key1' do
+      click_on '/matcher'
+    end
+    fill_in 'status', :with => '204'
+    fill_in 'body', :with => 'i am a llama'
+    click_on 'Save'
+
+    within 'tr', text: '/key1' do
+      click_on 'Reset'
+      click_on '/matcher'
+    end
+
+    expect(page).to have_field 'Status', with: 202
+    expect(page).to have_css 'textarea', text: 'Yo1!'
+  end
+
   it 'shows the number of times that a request has been made to that endpoint' do
     get '/endpoint'
     get '/endpoint'
@@ -117,6 +154,18 @@ describe 'App UI' do
     end
 
     expect(page).to have_css 'td', text: '<soapyOperation>key1</soapyOperation>'
+  end
+
+  it 'shows the routes of requests' do
+    get '/begin/supercalifragilisticexpialidocious/end'
+
+    visit '/'
+
+    within 'tr', text: '/begin/:middle/end' do
+      click_on 1
+    end
+
+    expect(page).to have_css 'td', text: '/begin/supercalifragilisticexpialidocious/end'
   end
 
   it 'can modify regexp/body matchers' do

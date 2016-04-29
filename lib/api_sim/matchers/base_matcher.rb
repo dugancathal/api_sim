@@ -19,6 +19,7 @@ module ApiSim
       end
 
       def reset!
+        @requests = []
         @overridden = false
       end
 
@@ -36,7 +37,7 @@ module ApiSim
 
       def record_request(request)
         request.body.rewind
-        requests.push(RecordedRequest.new(body: request.body.read, request_env: request.env))
+        requests.push(RecordedRequest.new(body: request.body.read, request_env: request.env, request_path: request.path))
       end
 
       def to_s
