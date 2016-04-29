@@ -49,7 +49,7 @@ module ApiSim
     end
 
     delete '/ui/response/:method/*' do
-      all_matching_matchers = matchers(faux_request(http_method, route, request.body))
+      all_matching_matchers = matchers(mimicked_request)
       all_matching_matchers.each &:reset!
       non_default_matchers = all_matching_matchers.reject(&:default)
       self.class.endpoints.delete_if { |endpoint| non_default_matchers.include?(endpoint) }
@@ -67,6 +67,11 @@ module ApiSim
       non_default_matchers = all_matching_matchers.reject(&:default)
       self.class.endpoints.delete_if { |endpoint| non_default_matchers.include?(endpoint) }
       ''
+    end
+
+    get '/requests/:endpoint_name' do
+      endpoint = self.class.endpoints.select{ |endpoint| endpoint.route == "/#{params[:endpoint_name]}" }.first || halt(404)
+      endpoint.requests.to_json
     end
 
     %i(get post put patch delete).each do |http_method|

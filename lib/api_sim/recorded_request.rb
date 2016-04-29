@@ -1,11 +1,12 @@
 module ApiSim
   class RecordedRequest
-    attr_reader :time, :headers, :body
+    attr_reader :time, :headers, :body, :path
 
-    def initialize(time: Time.now, body:, request_env:)
+    def initialize(time: Time.now, body:, request_env:, request_path:)
       @time = time
       @body = body
       @headers = parse_headers_from(request_env)
+      @path = request_path
     end
 
     private
