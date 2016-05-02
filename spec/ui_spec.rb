@@ -206,4 +206,20 @@ describe 'App UI' do
     fixed_response = get '/begin:notEnd', 'This is the request'
     expect(fixed_response.status).to eq 404
   end
+
+  it 'correctly encodes and escapes html' do
+    visit '/'
+
+    click_on '/endpoint'
+
+    test_text = '"&" and "&amp;" are different; don\'t you see?'
+
+    fill_in 'Response body', with: test_text
+
+    click_on 'Save'
+
+    click_on '/endpoint'
+
+    expect(page).to have_content test_text
+  end
 end
