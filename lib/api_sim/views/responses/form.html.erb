@@ -25,21 +25,21 @@
       <% if config.match_on_body? %>
           <div class="form-group">
             <label for="match">Match body on</label>
-            <input type="text" class="form-control" id="match" name="match" disabled="disabled" value="<%= params[:match] || config.matcher.source %>"/>
+            <input type="text" class="form-control" id="match" name="match" disabled="disabled" value="<%= h (params[:match] || config.matcher.source) %>"/>
             <input type="hidden" id="match" name="match" value="<%= params[:match] || config.matcher.source %>"/>
           </div>
       <% end %>
 
       <div class="form-group">
         <label for="schema">Response schema</label>
-        <textarea type="text" class="form-control" id="schema" name="schema" data-prettify rows="25"><%= params['schema'] || config.schema %></textarea>
+        <textarea type="text" class="form-control" id="schema" name="schema" data-prettify rows="25"><%= h (params['schema'] || config.schema) %></textarea>
       </div>
     </div>
 
     <div class="col-md-6">
       <div class="form-group">
         <label for="body">Response body</label>
-        <textarea class="form-control" id="body" name="body" data-prettify rows="25"><%= params['body'] || config.response_body %></textarea>
+        <textarea class="form-control" id="body" name="body" data-prettify rows="25"><%= h (params['body'] || config.response_body) %></textarea>
       </div>
     </div>
 

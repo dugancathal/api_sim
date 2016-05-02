@@ -1,4 +1,3 @@
-<% require_relative '../helpers/view_helpers' %>
 <h2>Simulators</h2>
 <table>
   <thead>
@@ -14,7 +13,7 @@
   <% endpoints.each do |endpoint| %>
     <tr>
       <td><%= endpoint.http_method %> <%= endpoint.route %> <%= custom_matcher?(endpoint) %></td>
-      <td><%= ViewHelpers.endpoint_match endpoint %></td>
+      <td><%= endpoint_match endpoint %></td>
       <td>
         <% if endpoint.readonly? %>
           Cannot edit dynamic endpoints
@@ -28,7 +27,7 @@
       <td>
         <form action="/ui/response/<%= endpoint.http_method %><%= endpoint.route %>" method="post">
           <input type="hidden" value="delete" name="_method">
-          <input type="hidden" value="<%= ViewHelpers.endpoint_match endpoint %>" name="match">
+          <input type="hidden" value="<%= endpoint_match endpoint %>" name="match">
           <button class='btn-link' type="submit">Reset</button>
         </form>
       </td>
