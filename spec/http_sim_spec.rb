@@ -10,6 +10,7 @@ describe ApiSim do
   before do
     @app = ApiSim.build_app do
       configure_endpoint 'GET', '/endpoint', 'Hi!', 200, {'X-CUSTOM-HEADER' => 'easy as abc'}
+      configure_endpoint 'GET', '/blogs/:blogId', 'Imma Blerg!', 200, {'X-CUSTOM-HEADER' => 'blerg header'}
 
       configure_dynamic_endpoint 'GET', '/dynamic', ->(req) {
         [201, {'X-CUSTOM-HEADER' => '123'}, 'Howdy!']
@@ -32,6 +33,20 @@ describe ApiSim do
     expect(response).to be_ok
     expect(response.body).to eq 'Hi!'
     expect(response.headers['X-CUSTOM-HEADER']).to eq 'easy as abc'
+  end
+
+  it 'can match on "parameterized" segments starting with a colon' do
+    response = get '/blogs/5'
+    expect(response).to be_ok
+    expect(response.body).to eq 'Imma Blerg!'
+    expect(response.headers['X-CUSTOM-HEADER']).to eq 'blerg header'
+  end
+
+  it 'does not match shorter or longer URLS on parameterized segments' do
+    response = get '/blogs'
+    expect(response).to be_not_found
+    response = get '/blogs/5/nopes'
+    expect(response).to be_not_found
   end
 
   it 'can configure dynamic responses that return their response via a proc' do
