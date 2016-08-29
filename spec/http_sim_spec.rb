@@ -10,6 +10,7 @@ describe ApiSim do
   before do
     @app = ApiSim.build_app do
       configure_endpoint 'GET', '/endpoint', 'Hi!', 200, {'X-CUSTOM-HEADER' => 'easy as abc'}
+      configure_endpoint 'POST', '/post_endpoint', {id: 1}.to_json, 201, {'X-CUSTOM-HEADER' => 'now I know my abcs'}
       configure_endpoint 'GET', '/blogs/:blogId', 'Imma Blerg!', 200, {'X-CUSTOM-HEADER' => 'blerg header'}
 
       configure_dynamic_endpoint 'GET', '/dynamic', ->(req) {
@@ -162,18 +163,25 @@ describe ApiSim do
     expect(response.body).to eq 'You done soap-ed it good'
   end
 
-  it 'can request requests' do
-    put '/response/endpoint', {body: 'new body', method: 'get'}.to_json, 'CONTENT_TYPE' => 'application/json'
+  it 'can request requests for endpoints' do
+    put '/response/post_endpoint', {body: {id: 42}.to_json, method: 'post'}.to_json, 'CONTENT_TYPE' => 'application/json'
 
-    requests_response = get '/requests/endpoint'
+    requests_response = get '/requests/post_endpoint'
     expect(JSON.parse(requests_response.body)).to eq []
 
-    get '/endpoint'
+    post '/post_endpoint', {post: 'body'}.to_json, {'HTTP_ACCEPT' => 'application/json'}
 
-    requests_response = get '/requests/endpoint'
+    requests_response = get '/requests/post_endpoint'
     expect(requests_response).to be_ok
+
     requests = JSON.parse(requests_response.body)
     expect(requests.count).to eq 1
+
+    request = requests.first
+    expect(request['headers']).to include ['ACCEPT', 'application/json']
+    expect(request['body']).to eq({post: 'body'}.to_json)
+    expect(request['path']).to eq('/post_endpoint')
+    expect(Time.parse(request['time'])).to_not be_nil
   end
 
   private
