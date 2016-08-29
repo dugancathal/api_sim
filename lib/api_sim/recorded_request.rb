@@ -9,6 +9,15 @@ module ApiSim
       @path = request_path
     end
 
+    def to_json(options = {})
+      {
+        body: @body,
+        headers: @headers,
+        path: @path,
+        time: @time,
+      }.to_json
+    end
+
     private
     def parse_headers_from(request_env)
       request_env.select do |k, v|
