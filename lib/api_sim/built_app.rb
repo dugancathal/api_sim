@@ -69,8 +69,14 @@ module ApiSim
       ''
     end
 
-    get '/requests/:endpoint_name' do
-      endpoint = self.class.endpoints.select{ |endpoint| endpoint.route == "/#{params[:endpoint_name]}" }.first || halt(404)
+
+    get '/requests/*' do
+      endpoint_name = parse_endpoint_from_request(request) || halt(404)
+
+      endpoint = self.class.endpoints.select do |endpoint|
+        endpoint.route == "/#{endpoint_name}"
+      end.first || halt(404)
+
       endpoint.requests.to_json
     end
 
@@ -145,6 +151,11 @@ module ApiSim
       end
 
       @response_body.empty? ? {} : @response_body
+    end
+
+    def parse_endpoint_from_request(request)
+      path_matcher  = request.path.match(/\/requests\/([\w\/_-]*)/)
+      path_matcher.size == 2 ? path_matcher[1] : nil
     end
   end
 end

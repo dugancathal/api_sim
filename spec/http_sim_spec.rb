@@ -17,6 +17,10 @@ describe ApiSim do
         [201, {'X-CUSTOM-HEADER' => '123'}, 'Howdy!']
       }
 
+      configure_dynamic_endpoint 'POST', '/namespace/resource', ->(req) {
+        [201, {'X-CUSTOM-HEADER' => '123'}, 'Howdy!']
+      }
+
       configure_matcher_endpoint 'POST', '/matcher', {
         /key1/ => [202, {'X-CUSTOM-HEADER' => 'accepted'}, 'Yo1!'],
         /key2/ => [203, {'X-CUSTOM-HEADER' => 'I got this elsewhere'}, 'Yo2!'],
@@ -182,6 +186,29 @@ describe ApiSim do
     expect(request['body']).to eq({post: 'body'}.to_json)
     expect(request['path']).to eq('/post_endpoint')
     expect(Time.parse(request['time'])).to_not be_nil
+  end
+
+  it 'can request requests for endpoints with slashes in the url' do
+    put '/response/namespace/resource', {body: {id: 42}.to_json, method: 'post'}.to_json, 'CONTENT_TYPE' => 'application/json'
+
+    requests_response = get '/requests/namespace/resource'
+    expect(requests_response).to be_ok
+    expect(JSON.parse(requests_response.body)).to eq []
+
+    post '/namespace/resource', {foo: 'bar'}.to_json, {'HTTP_ACCEPT' => 'application/json'}
+
+    requests_response = get '/requests/namespace/resource'
+    expect(requests_response).to be_ok
+
+    requests = JSON.parse(requests_response.body)
+    expect(requests.count).to eq 1
+
+    request = requests.first
+    expect(request['headers']).to include ['ACCEPT', 'application/json']
+    expect(request['body']).to eq({foo: 'bar'}.to_json)
+    expect(request['path']).to eq('/namespace/resource')
+    expect(Time.parse(request['time'])).to_not be_nil
+
   end
 
   private
