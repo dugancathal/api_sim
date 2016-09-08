@@ -10,10 +10,15 @@ describe ApiSim do
   before do
     @app = ApiSim.build_app do
       configure_endpoint 'GET', '/endpoint', 'Hi!', 200, {'X-CUSTOM-HEADER' => 'easy as abc'}
+      configure_endpoint 'POST', '/endpoint', {id: 42}.to_json, 200, {'X-CUSTOM-HEADER' => 'easy as abc'}
       configure_endpoint 'POST', '/post_endpoint', {id: 1}.to_json, 201, {'X-CUSTOM-HEADER' => 'now I know my abcs'}
       configure_endpoint 'GET', '/blogs/:blogId', 'Imma Blerg!', 200, {'X-CUSTOM-HEADER' => 'blerg header'}
 
       configure_dynamic_endpoint 'GET', '/dynamic', ->(req) {
+        [201, {'X-CUSTOM-HEADER' => '123'}, 'Howdy!']
+      }
+
+      configure_dynamic_endpoint 'POST', '/namespace/resource', ->(req) {
         [201, {'X-CUSTOM-HEADER' => '123'}, 'Howdy!']
       }
 
@@ -163,25 +168,110 @@ describe ApiSim do
     expect(response.body).to eq 'You done soap-ed it good'
   end
 
-  it 'can request requests for endpoints' do
-    put '/response/post_endpoint', {body: {id: 42}.to_json, method: 'post'}.to_json, 'CONTENT_TYPE' => 'application/json'
+  context 'requesting the requests for an endpoint' do
+    it 'can request requests for endpoints' do
+      put '/response/post_endpoint', {body: {id: 42}.to_json, method: 'post'}.to_json, 'CONTENT_TYPE' => 'application/json'
 
-    requests_response = get '/requests/post_endpoint'
-    expect(JSON.parse(requests_response.body)).to eq []
+      requests_response = get '/requests/post_endpoint'
+      expect(requests_response).to be_ok
+      expect(JSON.parse(requests_response.body)).to eq []
 
-    post '/post_endpoint', {post: 'body'}.to_json, {'HTTP_ACCEPT' => 'application/json'}
+      post '/post_endpoint', {post: 'body'}.to_json, {'HTTP_ACCEPT' => 'application/json'}
 
-    requests_response = get '/requests/post_endpoint'
-    expect(requests_response).to be_ok
+      requests_response = get '/requests/post_endpoint'
+      expect(requests_response).to be_ok
 
-    requests = JSON.parse(requests_response.body)
-    expect(requests.count).to eq 1
+      requests = JSON.parse(requests_response.body)
+      expect(requests.count).to eq 1
 
-    request = requests.first
-    expect(request['headers']).to include ['ACCEPT', 'application/json']
-    expect(request['body']).to eq({post: 'body'}.to_json)
-    expect(request['path']).to eq('/post_endpoint')
-    expect(Time.parse(request['time'])).to_not be_nil
+      request = requests.first
+      expect(request['headers']).to include ['ACCEPT', 'application/json']
+      expect(request['body']).to eq({post: 'body'}.to_json)
+      expect(request['path']).to eq('/post_endpoint')
+      expect(Time.parse(request['time'])).to_not be_nil
+    end
+
+    it 'can request requests for endpoints with slashes in the url' do
+      put '/response/namespace/resource', {body: {id: 42}.to_json, method: 'post'}.to_json, 'CONTENT_TYPE' => 'application/json'
+
+      requests_response = get '/requests/namespace/resource'
+      expect(requests_response).to be_ok
+      expect(JSON.parse(requests_response.body)).to eq []
+
+      post '/namespace/resource', {foo: 'bar'}.to_json, {'HTTP_ACCEPT' => 'application/json'}
+
+      requests_response = get '/requests/namespace/resource'
+      expect(requests_response).to be_ok
+
+      requests = JSON.parse(requests_response.body)
+      expect(requests.count).to eq 1
+
+      request = requests.first
+      expect(request['headers']).to include ['ACCEPT', 'application/json']
+      expect(request['body']).to eq({foo: 'bar'}.to_json)
+      expect(request['path']).to eq('/namespace/resource')
+      expect(Time.parse(request['time'])).to_not be_nil
+    end
+
+    it 'defaults to getting the GET version if multiple endpoints with the same name exist' do
+      put '/response/endpoint', {body: {id: 42}.to_json, method: 'get'}.to_json, 'CONTENT_TYPE' => 'application/json'
+      put '/response/endpoint', {body: {id: 42}.to_json, method: 'post'}.to_json, 'CONTENT_TYPE' => 'application/json'
+
+      requests_response = get '/requests/endpoint'
+      expect(requests_response).to be_ok
+      expect(JSON.parse(requests_response.body)).to eq []
+
+      get '/endpoint', nil, {'HTTP_ACCEPT' => 'application/json'}
+
+      requests_response = get '/requests/endpoint'
+      expect(requests_response).to be_ok
+
+      requests = JSON.parse(requests_response.body)
+      expect(requests.count).to eq 1
+
+      request = requests.first
+      expect(request['headers']).to include ['ACCEPT', 'application/json']
+      expect(request['path']).to eq('/endpoint')
+      expect(Time.parse(request['time'])).to_not be_nil
+    end
+
+    it 'can differentiate on method when requesting requests with the same name and different http verbs' do
+      put '/response/endpoint', {body: {id: 42}.to_json, method: 'get'}.to_json, 'CONTENT_TYPE' => 'application/json'
+      put '/response/endpoint', {body: {id: 42}.to_json, method: 'post'}.to_json, 'CONTENT_TYPE' => 'application/json'
+
+      requests_response = get '/requests/endpoint'
+      expect(requests_response).to be_ok
+      expect(JSON.parse(requests_response.body)).to eq []
+
+      get '/endpoint', nil, {'HTTP_ACCEPT' => 'application/json'}
+
+      requests_response = get '/requests/endpoint'
+      expect(requests_response).to be_ok
+
+      requests = JSON.parse(requests_response.body)
+      expect(requests.count).to eq 1
+
+      requests_response = get '/requests/endpoint?method=POST'
+      expect(requests_response).to be_ok
+
+      requests = JSON.parse(requests_response.body)
+      expect(requests.count).to eq 0
+
+      post '/endpoint', {foo: 'bar'}.to_json, {'HTTP_ACCEPT' => 'application/json'}
+
+      requests_response = get '/requests/endpoint?method=POST'
+      expect(requests_response).to be_ok
+
+      requests = JSON.parse(requests_response.body)
+      expect(requests.count).to eq 1
+
+      request = requests.first
+      expect(request['headers']).to include ['ACCEPT', 'application/json']
+      expect(request['path']).to eq('/endpoint')
+      expect(request['body']).to eq({foo: 'bar'}.to_json)
+      expect(Time.parse(request['time'])).to_not be_nil
+
+    end
   end
 
   private

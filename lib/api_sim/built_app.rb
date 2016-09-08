@@ -69,8 +69,13 @@ module ApiSim
       ''
     end
 
-    get '/requests/:endpoint_name' do
-      endpoint = self.class.endpoints.select{ |endpoint| endpoint.route == "/#{params[:endpoint_name]}" }.first || halt(404)
+
+    get '/requests/*' do
+      endpoint_name = parse_endpoint_from_request(request) || halt(404)
+      http_method   = params.fetch('method', 'GET')
+      endpoint      = find_matching_endpoint(endpoint_name, http_method)
+
+      halt(404) unless endpoint
       endpoint.requests.to_json
     end
 
@@ -83,6 +88,25 @@ module ApiSim
     end
 
     private
+
+    def find_matching_endpoint(endpoint_name, http_method)
+      matching_endpoints = active_endpoints.select do |endpoint|
+        endpoint.route == "/#{endpoint_name}"
+      end
+
+      case matching_endpoints.size
+        when 0
+          nil
+        when 1
+          matching_endpoints.first
+        else
+          matching_endpoints.find { |endpoint| endpoint.http_method =~ /#{http_method}/i }
+      end
+    end
+
+    def active_endpoints
+      self.class.endpoints.reject(&:overridden?)
+    end
 
     def create_matcher_override(request)
       old_matcher = matcher(request)
@@ -145,6 +169,11 @@ module ApiSim
       end
 
       @response_body.empty? ? {} : @response_body
+    end
+
+    def parse_endpoint_from_request(request)
+      path_matcher  = request.path.match(/\/requests\/([\w\/_-]*)/)
+      path_matcher.size == 2 ? path_matcher[1] : nil
     end
   end
 end
