@@ -25,7 +25,7 @@ Or install it yourself as:
 ```ruby
 require 'api_sim'
 
-ENDPOINT_JSON_SCHEMA = {"type": "object", "properties": {"a": {"type": "integer"}}}.to_json
+ENDPOINT_JSON_SCHEMA = {type: "object", properties: {a: {type: "integer"}}}.to_json
 
 app = ApiSim.build_app do
   configure_endpoint 'GET', '/endpoint', 'Hi!', 200, {'X-CUSTOM-HEADER' => 'easy as abc'}, ENDPOINT_JSON_SCHEMA
@@ -43,11 +43,11 @@ end
 run app
 ```
 
-The above is an exact copy of the `config.example.ru` from the root of the repo. You can boot this without too much
+The above is an exact copy of the `basic/config.ru` from the examples. You can boot this without too much
 effort by running:
 
 ```bash
-bundle check || bundle install && bundle exec rackup -Ilib config.example.ru
+cd examples/basic && bundle check || bundle install && bundle exec rackup -I../../lib
 ```
 
 After which the simulators should be running on port 9292.
