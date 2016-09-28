@@ -18,11 +18,7 @@ module ApiSim
       end
 
       def matches?(request)
-        matches_dynamic_path?(request) && request.request_method == http_method && matcher.call(request)
-      end
-
-      def custom_matcher?
-        matcher != ALWAYS_TRUE_MATCHER
+        matches_route_pattern?(request) && request.request_method == http_method && matcher.call(request)
       end
 
       def overridden!
@@ -33,24 +29,10 @@ module ApiSim
         !!@overridden
       end
 
-      def requests
-        @requests ||= []
-      end
-
       def to_s
         <<-DOC.gsub(/^\s+/, '')
           #{http_method} #{route} -> (#{response_code}) #{response_body[0..20]}...
         DOC
-      end
-
-      def matches_dynamic_path?(request)
-        route_tokens = route.split('/')
-        request_tokens = request.path.split('/')
-
-        return false unless route_tokens.count == request_tokens.count
-        route_tokens.zip(request_tokens).all? do |matcher_part, request_part|
-          matcher_part == request_part || matcher_part.start_with?(':')
-        end
       end
     end
   end

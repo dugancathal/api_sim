@@ -1,6 +1,6 @@
 require 'api_sim'
 
-ENDPOINT_JSON_SCHEMA = {"type": "object", "properties": {"a": {"type": "integer"}}}.to_json
+ENDPOINT_JSON_SCHEMA = {type: "object", properties: {a: {type: "integer"}}}.to_json
 
 app = ApiSim.build_app do
   configure_endpoint 'GET', '/endpoint', 'Hi!', 200, {'X-CUSTOM-HEADER' => 'easy as abc'}, ENDPOINT_JSON_SCHEMA

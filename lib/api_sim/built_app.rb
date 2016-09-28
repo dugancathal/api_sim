@@ -36,7 +36,7 @@ module ApiSim
     post '/ui/response/:method/*' do
       @config = matcher(faux_request(http_method, route, faux_body))
       unless params['schema'].empty?
-        @errors = JSON::Validator.fully_validate(params['schema'], params['body'])
+        @errors = JSON::Validator.fully_validate(JSON.parse(params['schema']), params['body'])
         if @errors.any?
           return erb :'responses/form.html', layout: :'layout.html'
         end
@@ -79,7 +79,7 @@ module ApiSim
       endpoint.requests.to_json
     end
 
-    %i(get post put patch delete).each do |http_method|
+    %i(get post put patch delete options).each do |http_method|
       public_send(http_method, '/*') do
         endpoint = matcher(request)
         endpoint.record_request(request)

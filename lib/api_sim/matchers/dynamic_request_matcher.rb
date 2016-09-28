@@ -15,7 +15,7 @@ module ApiSim
       end
 
       def matches?(request)
-        request.path == route && request.request_method == http_method && matcher.call(request)
+        matches_route_pattern?(request) && request.request_method == http_method && matcher.call(request)
       end
 
       def response(request)
