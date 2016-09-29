@@ -1,3 +1,4 @@
+require 'forwardable'
 require 'api_sim/recorded_request'
 require 'api_sim/matchers/base_matcher'
 
@@ -19,7 +20,7 @@ module ApiSim
       end
 
       def response(request)
-        response_generator.call(request)
+        response_generator.call(SmartRequest.new(request, self))
       end
 
       def readonly?
@@ -31,6 +32,19 @@ module ApiSim
           #{http_method} #{route} -> DYNAMIC BASED ON REQUEST
         DOC
       end
+    end
+  end
+
+  class SmartRequest < SimpleDelegator
+    def initialize(obj, matcher)
+      super(obj)
+      @matcher = matcher
+    end
+
+    def [](requested_part)
+      @matcher.route.split('/').zip(path.split('/')).find { |matcher_part, path_part|
+        ":#{requested_part}" == matcher_part and break path_part
+      } || super
     end
   end
 end
