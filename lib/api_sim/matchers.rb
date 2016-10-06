@@ -18,7 +18,7 @@ module ApiSim
           response_code: overrides.fetch(:response_code),
           headers: overrides.fetch(:headers),
           response_body: overrides.fetch(:response_body),
-          body_matches: overrides.fetch('matcher', old_matcher.matcher)
+          body_matches: overrides.fetch('matcher', old_matcher.matcher),
         )
       else
         Matchers::StaticRequestMatcher.new(
@@ -28,6 +28,7 @@ module ApiSim
           headers: overrides.fetch(:headers),
           response_body: overrides.fetch(:response_body),
           schema: overrides.fetch(:schema),
+          request_schema: overrides.fetch(:request_schema)
         )
       end
     end

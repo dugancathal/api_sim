@@ -12,7 +12,7 @@ module ApiSim
       end
     end
 
-    def configure_endpoint(http_method, route, response_body, response_code=200, headers={}, schema_string='')
+    def configure_endpoint(http_method, route, response_body, response_code=200, headers={}, schema_string='', request_schema: nil)
       endpoint_configurations.push(
         Matchers::StaticRequestMatcher.new(
           http_method: http_method,
@@ -21,7 +21,8 @@ module ApiSim
           headers: headers,
           default: true,
           response_body: response_body,
-          schema: schema_string
+          schema: schema_string,
+          request_schema: request_schema
         )
       )
     end

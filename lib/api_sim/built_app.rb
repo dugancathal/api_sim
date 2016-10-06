@@ -41,7 +41,6 @@ module ApiSim
           return erb :'responses/form.html', layout: :'layout.html'
         end
       end
-
       new_config = create_matcher_override(mimicked_request)
 
       self.class.endpoints.unshift(new_config)
@@ -69,11 +68,10 @@ module ApiSim
       ''
     end
 
-
     get '/requests/*' do
       endpoint_name = parse_endpoint_from_request(request) || halt(404)
-      http_method   = params.fetch('method', 'GET')
-      endpoint      = find_matching_endpoint(endpoint_name, http_method)
+      http_method = params.fetch('method', 'GET')
+      endpoint = find_matching_endpoint(endpoint_name, http_method)
 
       halt(404) unless endpoint
       endpoint.requests.to_json
@@ -82,6 +80,7 @@ module ApiSim
     %i(get post put patch delete options).each do |http_method|
       public_send(http_method, '/*') do
         endpoint = matcher(request)
+        halt(498) unless schema_validates?(endpoint)
         endpoint.record_request(request)
         endpoint.response(request)
       end
@@ -95,12 +94,12 @@ module ApiSim
       end
 
       case matching_endpoints.size
-        when 0
-          nil
-        when 1
-          matching_endpoints.first
-        else
-          matching_endpoints.find { |endpoint| endpoint.http_method =~ /#{http_method}/i }
+      when 0
+        nil
+      when 1
+        matching_endpoints.first
+      else
+        matching_endpoints.find { |endpoint| endpoint.http_method =~ /#{http_method}/i }
       end
     end
 
@@ -121,7 +120,8 @@ module ApiSim
         headers: parsed_body.fetch('headers', old_config[1]),
         response_body: parsed_body.fetch('body', old_config[2]),
         matcher: parsed_body.fetch('match', ''),
-        schema: parsed_body.fetch('schema', '')
+        schema: parsed_body.fetch('schema', ''),
+        request_schema: parsed_body.fetch('request-schema', nil)
       )
     end
 
@@ -172,8 +172,20 @@ module ApiSim
     end
 
     def parse_endpoint_from_request(request)
-      path_matcher  = request.path.match(/\/requests\/([\w\/_-]*)/)
+      path_matcher = request.path.match(/\/requests\/([\w\/_-]*)/)
       path_matcher.size == 2 ? path_matcher[1] : nil
+    end
+
+    def schema_validates?(endpoint)
+      if blank?(endpoint.request_schema) || request.env['CONTENT_TYPE'] != 'application/json'
+        true
+      else
+        JSON::Validator.validate_json(JSON.parse(endpoint.request_schema), parsed_body.to_json)
+      end
+    end
+
+    def blank?(item)
+      item.nil? || item.empty?
     end
   end
 end

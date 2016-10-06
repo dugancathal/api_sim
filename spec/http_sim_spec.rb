@@ -88,6 +88,7 @@ describe ApiSim do
     }.to_json, 'CONTENT_TYPE' => 'application/json'
 
     response = get '/endpoint'
+    puts response.body
     expect(response.status).to eq 202
     expect(response.body).to eq 'new body'
     expect(response.headers['X-CUSTOM-HEADER']).to eq 'is it though?'

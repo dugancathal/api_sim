@@ -32,7 +32,11 @@
 
       <div class="form-group">
         <label for="schema">Response schema</label>
-        <textarea type="text" class="form-control" id="schema" name="schema" data-prettify rows="25"><%= h (params['schema'] || config.schema) %></textarea>
+        <textarea type="text" class="form-control" id="schema" name="schema" data-prettify rows="25"><%= h (params[:schema] || config.schema) %></textarea>
+      </div>
+      <div class="form-group">
+        <label for="request-schema">Request schema</label>
+        <textarea class="form-control" id="request-schema" name="request-schema" data-prettify rows="12"><%= h (params[:request_schema] || config.request_schema) %></textarea>
       </div>
     </div>
 

@@ -12,6 +12,7 @@ describe 'App UI' do
       configure_endpoint 'GET', '/endpoint', 'Hi!', 200, {'X-CUSTOM-HEADER' => 'easy as abc', 'CONTENT-TYPE' => 'application/json'}
       configure_endpoint 'GET', '/begin/:middle/end', 'You found an any-value path', 200, {'CONTENT-TYPE' => 'application/json'}
       configure_endpoint 'GET', '/begin:end', 'I am not a dynamic path', 200, {'CONTENT-TYPE' => 'application/json'}
+      configure_endpoint 'POST', '/fancy-create', '', 204
 
       configure_dynamic_endpoint 'GET', '/dynamic', ->(req) {
         [201, {'X-CUSTOM-HEADER' => '123'}, 'Howdy!']
@@ -57,6 +58,8 @@ describe 'App UI' do
     expect(page).to have_css 'tr', text: '/endpoint', count: 1
 
     response = get '/endpoint'
+
+    puts response.body
     expect(response.status).to eq 202
     expect(response.body).to eq 'New UI Body'
   end
@@ -221,5 +224,20 @@ describe 'App UI' do
     click_on '/endpoint'
 
     expect(page).to have_content test_text
+  end
+
+  it 'allows for configuration of request schemas' do
+    visit '/'
+
+    click_on '/fancy-create'
+    fill_in 'Request schema', with: {type: 'object', properties: {name: {type: 'string'}}}.to_json
+    click_on 'Save'
+
+    click_on '/fancy-create'
+
+    expect(page).to have_field 'Request schema', with: {type: 'object', properties: {name: {type: 'string'}}}.to_json
+
+    response = post '/fancy-create', {name: {id: 'not an integer'}}.to_json, 'CONTENT_TYPE' => 'application/json'
+    expect(response.status).to eq 498
   end
 end

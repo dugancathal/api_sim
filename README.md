@@ -52,6 +52,14 @@ cd examples/basic && bundle check || bundle install && bundle exec rackup -I../.
 
 After which the simulators should be running on port 9292.
 
+## API
+
+The API that these simulators generate can get pretty smart. To help you, the user,
+distinguish between failures and "smarts", we've made up an HTTP status code: 498.
+This code means "we received a request that did not match an expected schema". If you
+provide the simulators with a request schema for an endpoint, all requests must match
+that schema. If they do not, they'll receive our fictional status code.
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

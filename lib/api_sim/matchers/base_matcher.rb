@@ -5,6 +5,7 @@ module ApiSim
     class BaseMatcher
       DEFAULT_RACK_RESPONSE=[200, {}, '']
       ALWAYS_TRUE_MATCHER = ->(request) { true }
+      attr_reader :request_schema
 
       def custom_matcher?
         matcher != ALWAYS_TRUE_MATCHER
