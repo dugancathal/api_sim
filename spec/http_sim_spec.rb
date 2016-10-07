@@ -137,17 +137,17 @@ describe ApiSim do
 
   it 'deletes the requests upon reset' do
     put '/response/endpoint', {body: 'new body', method: 'get'}.to_json, 'CONTENT_TYPE' => 'application/json'
-    requests_response = get '/requests/endpoint'
+    requests_response = get '/requests/GET/endpoint'
     expect(JSON.parse(requests_response.body)).to eq []
 
     get '/endpoint'
-    requests_response = get '/requests/endpoint'
+    requests_response = get '/requests/GET/endpoint'
     expect(JSON.parse(requests_response.body).count).to eq 1
 
     delete_response = delete '/response/endpoint', {method: 'get'}.to_json, 'CONTENT_TYPE' => 'application/json'
     expect(delete_response).to be_ok
 
-    requests_response = get '/requests/endpoint'
+    requests_response = get '/requests/GET/endpoint'
     expect(JSON.parse(requests_response.body)).to eq []
   end
 
@@ -173,13 +173,13 @@ describe ApiSim do
     it 'can request requests for endpoints' do
       put '/response/post_endpoint', {body: {id: 42}.to_json, method: 'post'}.to_json, 'CONTENT_TYPE' => 'application/json'
 
-      requests_response = get '/requests/post_endpoint'
+      requests_response = get '/requests/POST/post_endpoint'
       expect(requests_response).to be_ok
       expect(JSON.parse(requests_response.body)).to eq []
 
       post '/post_endpoint', {post: 'body'}.to_json, {'HTTP_ACCEPT' => 'application/json'}
 
-      requests_response = get '/requests/post_endpoint'
+      requests_response = get '/requests/POST/post_endpoint'
       expect(requests_response).to be_ok
 
       requests = JSON.parse(requests_response.body)
@@ -195,13 +195,13 @@ describe ApiSim do
     it 'can request requests for endpoints with slashes in the url' do
       put '/response/namespace/resource', {body: {id: 42}.to_json, method: 'post'}.to_json, 'CONTENT_TYPE' => 'application/json'
 
-      requests_response = get '/requests/namespace/resource'
+      requests_response = get '/requests/POST/namespace/resource'
       expect(requests_response).to be_ok
       expect(JSON.parse(requests_response.body)).to eq []
 
       post '/namespace/resource', {foo: 'bar'}.to_json, {'HTTP_ACCEPT' => 'application/json'}
 
-      requests_response = get '/requests/namespace/resource'
+      requests_response = get '/requests/POST/namespace/resource'
       expect(requests_response).to be_ok
 
       requests = JSON.parse(requests_response.body)
@@ -218,13 +218,13 @@ describe ApiSim do
       put '/response/endpoint', {body: {id: 42}.to_json, method: 'get'}.to_json, 'CONTENT_TYPE' => 'application/json'
       put '/response/endpoint', {body: {id: 42}.to_json, method: 'post'}.to_json, 'CONTENT_TYPE' => 'application/json'
 
-      requests_response = get '/requests/endpoint'
+      requests_response = get '/requests/GET/endpoint'
       expect(requests_response).to be_ok
       expect(JSON.parse(requests_response.body)).to eq []
 
       get '/endpoint', nil, {'HTTP_ACCEPT' => 'application/json'}
 
-      requests_response = get '/requests/endpoint'
+      requests_response = get '/requests/GET/endpoint'
       expect(requests_response).to be_ok
 
       requests = JSON.parse(requests_response.body)
@@ -240,19 +240,19 @@ describe ApiSim do
       put '/response/endpoint', {body: {id: 42}.to_json, method: 'get'}.to_json, 'CONTENT_TYPE' => 'application/json'
       put '/response/endpoint', {body: {id: 42}.to_json, method: 'post'}.to_json, 'CONTENT_TYPE' => 'application/json'
 
-      requests_response = get '/requests/endpoint'
+      requests_response = get '/requests/GET/endpoint'
       expect(requests_response).to be_ok
       expect(JSON.parse(requests_response.body)).to eq []
 
       get '/endpoint', nil, {'HTTP_ACCEPT' => 'application/json'}
 
-      requests_response = get '/requests/endpoint'
+      requests_response = get '/requests/GET/endpoint'
       expect(requests_response).to be_ok
 
       requests = JSON.parse(requests_response.body)
       expect(requests.count).to eq 1
 
-      requests_response = get '/requests/endpoint?method=POST'
+      requests_response = get '/requests/POST/endpoint'
       expect(requests_response).to be_ok
 
       requests = JSON.parse(requests_response.body)
@@ -260,7 +260,7 @@ describe ApiSim do
 
       post '/endpoint', {foo: 'bar'}.to_json, {'HTTP_ACCEPT' => 'application/json'}
 
-      requests_response = get '/requests/endpoint?method=POST'
+      requests_response = get '/requests/POST/endpoint'
       expect(requests_response).to be_ok
 
       requests = JSON.parse(requests_response.body)
@@ -271,7 +271,14 @@ describe ApiSim do
       expect(request['path']).to eq('/endpoint')
       expect(request['body']).to eq({foo: 'bar'}.to_json)
       expect(Time.parse(request['time'])).to_not be_nil
+    end
 
+    it 'allows retrieval of endpoint requests for "patterned" endpoints' do
+      response = get '/blogs/34983943'
+      expect(response).to be_ok
+
+      requests = get '/requests/GET/blogs/34983943'
+      expect(JSON.parse(requests.body).length).to eq 1
     end
   end
 

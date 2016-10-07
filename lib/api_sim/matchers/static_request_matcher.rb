@@ -1,3 +1,4 @@
+require 'mustermann'
 require 'api_sim/recorded_request'
 require 'api_sim/matchers/base_matcher'
 
@@ -12,7 +13,7 @@ module ApiSim
         @headers = args.fetch(:headers, {})
         @response_body = args.fetch(:response_body, '')
         @response_code = args.fetch(:response_code, 200)
-        @route = args.fetch(:route)
+        @route = Mustermann.new(args.fetch(:route))
         @http_method = args.fetch(:http_method)
         @schema = args.fetch(:schema, nil)
         @request_schema = args.fetch(:request_schema, nil)

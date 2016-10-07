@@ -1,3 +1,4 @@
+require 'mustermann'
 require 'api_sim/recorded_request'
 require 'api_sim/matchers/base_matcher'
 
@@ -12,7 +13,7 @@ module ApiSim
         @headers = headers
         @response_body = response_body
         @response_code = response_code
-        @route = route
+        @route = Mustermann.new(route)
         @http_method = http_method
         @schema = schema
       end
@@ -21,7 +22,7 @@ module ApiSim
         request.body.rewind
         body = request.body.read
         request.body.rewind
-        request.path == route && request.request_method == http_method && matcher.match(body)
+        route.match(request.path) && request.request_method == http_method && matcher.match(body)
       end
 
       def match_on_body?

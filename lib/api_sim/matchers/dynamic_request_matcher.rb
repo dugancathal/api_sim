@@ -1,4 +1,5 @@
 require 'forwardable'
+require 'mustermann'
 require 'api_sim/recorded_request'
 require 'api_sim/matchers/base_matcher'
 
@@ -9,7 +10,7 @@ module ApiSim
 
       def initialize(http_method:, route:, response_generator:, default: false, matcher: ALWAYS_TRUE_MATCHER)
         @matcher = matcher
-        @route = route
+        @route = Mustermann.new(route)
         @http_method = http_method
         @default = default
         @response_generator = response_generator
@@ -42,9 +43,7 @@ module ApiSim
     end
 
     def [](requested_part)
-      @matcher.route.split('/').zip(path.split('/')).find { |matcher_part, path_part|
-        ":#{requested_part}" == matcher_part and break path_part
-      } || super
+      @matcher.route.match(path)[requested_part]
     end
   end
 end

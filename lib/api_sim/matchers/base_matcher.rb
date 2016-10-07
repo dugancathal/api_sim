@@ -54,14 +54,7 @@ module ApiSim
       protected
 
       def matches_route_pattern?(request)
-        route_tokens = route.split('/')
-        request_tokens = request.path.split('/')
-
-        return false if route_tokens.count != request_tokens.count && !route_tokens.include?('*')
-        route_tokens.zip(request_tokens).all? do |matcher_part, request_part|
-          break true if matcher_part == '*'
-          matcher_part == request_part || matcher_part.start_with?(':')
-        end
+        route.match(request.path)
       end
     end
   end

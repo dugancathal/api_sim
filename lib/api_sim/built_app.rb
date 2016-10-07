@@ -4,9 +4,11 @@ require 'json'
 require 'tilt/erb'
 require 'api_sim/view_helpers'
 require 'json-schema'
+require 'mustermann'
 
 module ApiSim
   class BuiltApp < Sinatra::Base
+    API_REQUEST_MATCHER = Mustermann.new('/requests/:method{+path}')
     use Rack::MethodOverride
 
     helpers do
@@ -69,9 +71,8 @@ module ApiSim
     end
 
     get '/requests/*' do
-      endpoint_name = parse_endpoint_from_request(request) || halt(404)
-      http_method = params.fetch('method', 'GET')
-      endpoint = find_matching_endpoint(endpoint_name, http_method)
+      params = API_REQUEST_MATCHER.match(request.path) || halt(404)
+      endpoint = matcher(faux_request(params['method'], params['path']))
 
       halt(404) unless endpoint
       endpoint.requests.to_json
@@ -87,21 +88,6 @@ module ApiSim
     end
 
     private
-
-    def find_matching_endpoint(endpoint_name, http_method)
-      matching_endpoints = active_endpoints.select do |endpoint|
-        endpoint.route == "/#{endpoint_name}"
-      end
-
-      case matching_endpoints.size
-      when 0
-        nil
-      when 1
-        matching_endpoints.first
-      else
-        matching_endpoints.find { |endpoint| endpoint.http_method =~ /#{http_method}/i }
-      end
-    end
 
     def active_endpoints
       self.class.endpoints.reject(&:overridden?)
@@ -169,11 +155,6 @@ module ApiSim
       end
 
       @response_body.empty? ? {} : @response_body
-    end
-
-    def parse_endpoint_from_request(request)
-      path_matcher = request.path.match(/\/requests\/([\w\/_-]*)/)
-      path_matcher.size == 2 ? path_matcher[1] : nil
     end
 
     def schema_validates?(endpoint)
