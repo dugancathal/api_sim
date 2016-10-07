@@ -172,7 +172,7 @@ module ApiSim
     end
 
     def parse_endpoint_from_request(request)
-      path_matcher = request.path.match(/\/requests\/([\w\/_-]*)/)
+      path_matcher = request.path.match(/\/requests\/([\w\/_:-]*)/)
       path_matcher.size == 2 ? path_matcher[1] : nil
     end
 

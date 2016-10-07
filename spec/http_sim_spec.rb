@@ -151,6 +151,12 @@ describe ApiSim do
     expect(JSON.parse(requests_response.body)).to eq []
   end
 
+  it 'should handle colon in request path' do
+    get '/blogs/some_id'
+    requests_response = get '/requests/blogs/:blogId'
+    expect(JSON.parse(requests_response.body).count).to eq 1
+  end
+
   it 'can do matcher requests with XML data' do
     response = post '/matcher', <<-SOAP
       <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
