@@ -79,6 +79,11 @@ describe ApiSim do
     expect(response.status).to eq 404
   end
 
+  it 'can work with a valid Content-Type/Accept Header' do
+    response2 = put '/response/dynamic', {body: 'new body', method: 'get'}.to_json, 'CONTENT_TYPE' => 'application/json; charset=utf8'
+    expect(response2.status).to eq 200
+  end
+
   it 'allows modification of the response for an endpoint' do
     put '/response/endpoint', {
       body: 'new body',

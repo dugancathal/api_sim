@@ -140,11 +140,11 @@ module ApiSim
       return @response_body if @response_body
 
       @response_body = case request.env['CONTENT_TYPE']
-      when 'application/json' then
+      when %r{application/json} then
         JSON.parse(request.body.read)
-      when 'text/xml' then
+      when %r{text/xml} then
         Nokogiri::XML(request.body.read)
-      when 'application/x-www-form-urlencoded' then
+      when %r{application/x-www-form-urlencoded} then
         params
       else
         if request.path =~ /ui/
