@@ -174,6 +174,19 @@ describe ApiSim do
     expect(response.body).to eq 'You done soap-ed it good'
   end
 
+  it 'allows extension of an existing ApiSim instance' do
+    other_app = ApiSim.build_app do
+      configure_endpoint 'GET', '/a-new-endpoint', 'You have been extended', 200
+    end
+
+    @app.use(other_app)
+
+    response = get '/a-new-endpoint'
+
+    expect(response.status).to eq 200
+    expect(response.body).to eq 'You have been extended'
+  end
+
   context 'requesting the requests for an endpoint' do
     it 'can request requests for endpoints' do
       put '/response/post_endpoint', {body: {id: 42}.to_json, method: 'post'}.to_json, 'CONTENT_TYPE' => 'application/json'

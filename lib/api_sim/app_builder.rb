@@ -7,7 +7,7 @@ module ApiSim
 
     def rackapp
       config = self
-      Class.new(BuiltApp) do
+      Sinatra.new(BuiltApp) do
         endpoints config.endpoint_configurations
       end
     end
