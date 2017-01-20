@@ -38,7 +38,8 @@ module ApiSim
 
       def record_request(request)
         request.body.rewind
-        requests.push(RecordedRequest.new(body: request.body.read, request_env: request.env, request_path: request.path))
+        requests.push(RecordedRequest.new(body: request.body.read, request_env: request.env, request_path: request.path,
+            query_string: request.params))
       end
 
       def to_s
