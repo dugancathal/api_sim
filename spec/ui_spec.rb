@@ -240,4 +240,19 @@ describe 'App UI' do
     response = post '/fancy-create', {name: {id: 'not an integer'}}.to_json, 'CONTENT_TYPE' => 'application/json'
     expect(response.status).to eq 498
   end
+
+    it 'can show query strings for the endpoint' do
+      get '/endpoint?foo=bar&test=123'
+
+      visit '/'
+
+      within 'tr', text: '/endpoint' do
+        click_on '1'
+      end
+
+      expect(page).to have_content 'Requests to GET /endpoint'
+      expect(page).to have_content 'foo: bar'
+      expect(page).to have_content 'test: 123'
+    end
+
 end

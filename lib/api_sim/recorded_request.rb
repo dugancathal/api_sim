@@ -1,12 +1,13 @@
 module ApiSim
   class RecordedRequest
-    attr_reader :time, :headers, :body, :path
+    attr_reader :time, :headers, :body, :path, :query
 
-    def initialize(time: Time.now, body:, request_env:, request_path:)
+    def initialize(time: Time.now, body:, request_env:, request_path:, query_string: )
       @time = time
       @body = body
       @headers = parse_headers_from(request_env)
       @path = request_path
+      @query = query_string
     end
 
     def to_json(options = {})
@@ -15,6 +16,7 @@ module ApiSim
         headers: @headers,
         path: @path,
         time: @time,
+        query: @query
       }.to_json
     end
 

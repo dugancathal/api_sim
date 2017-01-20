@@ -298,6 +298,21 @@ describe ApiSim do
       requests = get '/requests/GET/blogs/34983943'
       expect(JSON.parse(requests.body).length).to eq 1
     end
+
+    it 'returns query parameters for endpoints' do
+        response = get '/blogs/34983943?q=stuff&fmt=summary&n=1'
+        expect(response).to be_ok
+
+      requests = get '/requests/GET/blogs/34983943'
+      puts requests.body
+      request_bodies = JSON.parse(requests.body)
+      expect(request_bodies.length).to eq 1
+      query = request_bodies.first['query']
+      expect(query).to_not be_nil
+      expect(query['q']).to eq('stuff')
+      expect(query['fmt']).to eq('summary')
+      expect(query['n']).to eq('1')
+    end
   end
 
   private

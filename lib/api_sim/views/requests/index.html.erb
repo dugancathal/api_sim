@@ -8,6 +8,7 @@
         <th>Time</th>
         <th>Body</th>
         <th>Route</th>
+        <th>Query Params</th>
         <th>Headers</th>
     </tr>
     </thead>
@@ -17,6 +18,15 @@
             <th class="header-column"><p><%= request.time %></p></th>
             <td><p><%= h request.body %></p></td>
             <td><p><%= h request.path %></p></td>
+            <td>
+              <ul>
+              <% request.query.each do |name, value| %>
+                <li><%= name %>:
+                <%= value %>
+                </li>
+              <% end %>
+              </ul>
+              </td>
             <td>
               <ul>
               <% request.headers.each do |header, value| %>
