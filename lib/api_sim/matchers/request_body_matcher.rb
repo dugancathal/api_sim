@@ -5,7 +5,7 @@ require 'api_sim/matchers/base_matcher'
 module ApiSim
   module Matchers
     class RequestBodyMatcher < BaseMatcher
-      attr_reader :http_method, :route, :headers, :response_code, :matcher, :response_body, :default, :schema
+      attr_reader :http_method, :route, :headers, :response_code, :matcher, :response_body, :default, :schema, :query
 
       def initialize(http_method:, route:, response_code: 200, response_body: '', headers: {}, default: false, body_matches:, schema: nil)
         @default = default

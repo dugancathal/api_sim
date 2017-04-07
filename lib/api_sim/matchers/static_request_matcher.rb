@@ -5,7 +5,7 @@ require 'api_sim/matchers/base_matcher'
 module ApiSim
   module Matchers
     class StaticRequestMatcher < BaseMatcher
-      attr_reader :http_method, :route, :headers, :response_code, :matcher, :response_body, :default, :schema
+      attr_reader :http_method, :route, :headers, :response_code, :matcher, :response_body, :default, :schema, :query
 
       def initialize(**args)
         @default = args.fetch(:default, false)
@@ -13,14 +13,19 @@ module ApiSim
         @headers = args.fetch(:headers, {})
         @response_body = args.fetch(:response_body, '')
         @response_code = args.fetch(:response_code, 200)
-        @route = Mustermann.new(args.fetch(:route))
+        route, @query = args.fetch(:route).split('?')
+        @query ||= args.fetch(:query, '')
+        @route = Mustermann.new(route)
         @http_method = args.fetch(:http_method)
         @schema = args.fetch(:schema, nil)
         @request_schema = args.fetch(:request_schema, nil)
       end
 
       def matches?(request)
-        matches_route_pattern?(request) && request.request_method == http_method && matcher.call(request)
+        matches_route_pattern?(request) &&
+          (query.empty? ? true : request.query_string == query) &&
+          request.request_method == http_method &&
+          matcher.call(request)
       end
 
       def overridden!

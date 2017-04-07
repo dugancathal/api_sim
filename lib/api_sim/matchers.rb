@@ -13,7 +13,7 @@ module ApiSim
     def self.dupe_and_reconfigure(old_matcher, overrides)
       if old_matcher.match_on_body?
         Matchers::RequestBodyMatcher.new(
-          route: old_matcher.route,
+          route: old_matcher.route.to_s,
           http_method: old_matcher.http_method,
           response_code: overrides.fetch(:response_code),
           headers: overrides.fetch(:headers),
@@ -22,7 +22,8 @@ module ApiSim
         )
       else
         Matchers::StaticRequestMatcher.new(
-          route: old_matcher.route,
+          route: old_matcher.route.to_s,
+          query: old_matcher.query.to_s,
           http_method: old_matcher.http_method,
           response_code: overrides.fetch(:response_code),
           headers: overrides.fetch(:headers),

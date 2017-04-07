@@ -6,7 +6,7 @@ require 'api_sim/matchers/base_matcher'
 module ApiSim
   module Matchers
     class DynamicRequestMatcher < BaseMatcher
-      attr_reader :response_generator, :route, :http_method, :default, :matcher
+      attr_reader :response_generator, :route, :http_method, :default, :matcher, :query
 
       def initialize(http_method:, route:, response_generator:, default: false, matcher: ALWAYS_TRUE_MATCHER)
         @matcher = matcher

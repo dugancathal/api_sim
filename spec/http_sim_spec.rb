@@ -103,6 +103,7 @@ describe ApiSim do
     put '/response/dynamic', {body: 'new body', method: 'get'}.to_json, 'CONTENT_TYPE' => 'application/json'
 
     response = get '/dynamic'
+    File.write('/tmp/output', response.body)
     expect(response).to be_created
     expect(response.body).to eq 'new body'
     expect(response.headers['X-CUSTOM-HEADER']).to eq '123'
