@@ -9,6 +9,7 @@ describe 'App UI' do
 
   before do
     @app = ApiSim.build_app do
+      configure_endpoint 'GET', '/query?parm=eggplant&pepper=extra', 'Hi with eggplant parm!', 200, {}
       configure_endpoint 'GET', '/endpoint', 'Hi!', 200, {'X-CUSTOM-HEADER' => 'easy as abc', 'CONTENT-TYPE' => 'application/json'}
       configure_endpoint 'GET', '/begin/:middle/end', 'You found an any-value path', 200, {'CONTENT-TYPE' => 'application/json'}
       configure_endpoint 'GET', '/begin;end', 'I am not a dynamic path', 200, {'CONTENT-TYPE' => 'application/json'}
@@ -28,6 +29,7 @@ describe 'App UI' do
 
   it 'has a view of all matchers' do
     visit '/'
+    expect(page).to have_content '/query?parm=eggplant&pepper=extra'
     expect(page).to have_content '/endpoint'
     expect(page).to have_content '/dynamic'
     expect(page).to have_content '/matcher'

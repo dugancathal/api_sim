@@ -12,7 +12,7 @@
   <tbody>
   <% endpoints.each do |endpoint| %>
     <tr>
-      <td><%= endpoint.http_method %> <%= endpoint.route %> <%= custom_matcher?(endpoint) %></td>
+      <td><%= endpoint.http_method %> <%= endpoint.route %><%= endpoint_query_string(endpoint) %> <%= custom_matcher?(endpoint) %></td>
       <td><%= endpoint_match endpoint %></td>
       <td>
         <% if endpoint.readonly? %>

@@ -8,6 +8,10 @@ module ApiSim
       endpoint.custom_matcher? ? '(Custom matcher)' : ''
     end
 
+    def endpoint_query_string(endpoint)
+      "?#{endpoint.query}" if endpoint.query != ''
+    end
+
     def config
       @config
     end

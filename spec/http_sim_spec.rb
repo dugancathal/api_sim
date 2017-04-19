@@ -12,6 +12,7 @@ describe ApiSim do
       configure_endpoint 'GET', '/endpoint', 'Hi!', 200, {'X-CUSTOM-HEADER' => 'easy as abc'}
       configure_endpoint 'POST', '/endpoint', {id: 42}.to_json, 200, {'X-CUSTOM-HEADER' => 'easy as abc'}
       configure_endpoint 'POST', '/post_endpoint', {id: 1}.to_json, 201, {'X-CUSTOM-HEADER' => 'now I know my abcs'}
+      configure_endpoint 'GET', '/blogs/:blogId?commentAuthor=Simone', 'Only Comments by Simone', 200, {}
       configure_endpoint 'GET', '/blogs/:blogId', 'Imma Blerg!', 200, {'X-CUSTOM-HEADER' => 'blerg header'}
 
       configure_dynamic_endpoint 'GET', '/dynamic', ->(req) {
@@ -188,6 +189,23 @@ describe ApiSim do
     expect(response.body).to eq 'You have been extended'
   end
 
+  it 'allows retrieval of requests for endpoints with query params' do
+    response = get '/blogs/3?commentAuthor=Simone'
+
+    expect(response).to be_ok
+    expect(response.body).to eq 'Only Comments by Simone'
+
+    request_requests = get '/requests/GET/blogs/3?commentAuthor=Simone'
+    expect(request_requests).to be_ok
+    body = JSON.parse(request_requests.body)
+    expect(body.count).to eq 1
+
+    request_requests = get '/requests/GET/blogs/3'
+    expect(request_requests).to be_ok
+    body = JSON.parse(request_requests.body)
+    expect(body.count).to eq 0
+  end
+
   context 'requesting the requests for an endpoint' do
     it 'can request requests for endpoints' do
       put '/response/post_endpoint', {body: {id: 42}.to_json, method: 'post'}.to_json, 'CONTENT_TYPE' => 'application/json'
@@ -301,11 +319,10 @@ describe ApiSim do
     end
 
     it 'returns query parameters for endpoints' do
-        response = get '/blogs/34983943?q=stuff&fmt=summary&n=1'
-        expect(response).to be_ok
+      response = get '/blogs/34983943?q=stuff&fmt=summary&n=1'
+      expect(response).to be_ok
 
       requests = get '/requests/GET/blogs/34983943'
-      puts requests.body
       request_bodies = JSON.parse(requests.body)
       expect(request_bodies.length).to eq 1
       query = request_bodies.first['query']

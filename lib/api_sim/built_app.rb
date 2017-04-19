@@ -16,8 +16,8 @@ module ApiSim
     end
 
     def self.endpoints(endpoints = nil)
-      return @endpoints if @endpoints
-      @endpoints = endpoints
+      @endpoints = endpoints if endpoints
+      return @endpoints
     end
 
     get '/' do
@@ -25,18 +25,18 @@ module ApiSim
     end
 
     get '/ui/response/:method/*' do
-      @config = matcher(faux_request(http_method, route, faux_body))
+      @config = matcher(faux_request(method: http_method, path: route, body: faux_body, query: request.query_string))
       erb :'responses/form.html', layout: :'layout.html'
     end
 
     get '/ui/requests/:method/*' do
-      @config = matcher(faux_request(http_method, route, faux_body))
+      @config = matcher(faux_request(method: http_method, path: route, body: faux_body, query: request.query_string))
 
       erb :'requests/index.html', layout: :'layout.html'
     end
 
     post '/ui/response/:method/*' do
-      @config = matcher(faux_request(http_method, route, faux_body))
+      @config = matcher(faux_request(method: http_method, path: route, body: faux_body, query: request.query_string))
       unless params['schema'].empty?
         @errors = JSON::Validator.fully_validate(JSON.parse(params['schema']), params['body'])
         if @errors.any?
@@ -72,7 +72,7 @@ module ApiSim
 
     get '/requests/*' do
       params = API_REQUEST_MATCHER.match(request.path) || halt(404)
-      endpoint = matcher(faux_request(params['method'], params['path']))
+      endpoint = matcher(faux_request(method: params['method'], path: params['path'], query: request.query_string))
 
       halt(404) unless endpoint
       endpoint.requests.to_json
@@ -112,7 +112,7 @@ module ApiSim
     end
 
     def mimicked_request
-      faux_request(http_method, route, request.body)
+      faux_request(method: http_method, path: route, body: request.body, query: request.query_string)
     end
 
     def http_method
@@ -127,9 +127,9 @@ module ApiSim
       self.class.endpoints.select { |matcher| matcher.matches?(request) }
     end
 
-    def faux_request(method='', path='', body=StringIO.new(''))
+    def faux_request(method: '', path: '', body: StringIO.new(''), query: '')
       body.rewind
-      Rack::Request.new({'rack.input' => body, 'REQUEST_METHOD' => method, 'PATH_INFO' => path})
+      Rack::Request.new({'rack.input' => body, 'REQUEST_METHOD' => method, 'PATH_INFO' => path, 'QUERY_STRING' => query})
     end
 
     def faux_body
