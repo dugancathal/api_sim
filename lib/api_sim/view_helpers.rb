@@ -16,14 +16,10 @@ module ApiSim
       @config
     end
 
-    def route
-      "/#{params[:splat].first}"
-    end
-
     def link_to_response_edit(endpoint)
       match = endpoint.match_on_body? ? endpoint.matcher.source : ''
       <<-HTML
-      <a href="/ui/response/#{endpoint.http_method}#{endpoint.route}?match=#{match}">
+      <a href="#{ui_root}/response/#{endpoint.http_method}#{endpoint.route}?match=#{match}">
         #{endpoint.route}
       </a>
       HTML
@@ -36,7 +32,7 @@ module ApiSim
     def link_to_read_requests(endpoint)
       match = endpoint.match_on_body? ? endpoint.matcher.source : ''
       <<-HTML
-        <a href="/ui/requests/#{endpoint.http_method}#{endpoint.route}?match=#{match}">
+        <a href="#{ui_root}/requests/#{endpoint.http_method}#{endpoint.route}?match=#{match}">
           #{endpoint.requests.count}
         </a>
       HTML
@@ -48,6 +44,10 @@ module ApiSim
       else
         ''
       end
+    end
+
+    def ui_root
+      self.class.ui_root
     end
   end
 end

@@ -9,7 +9,13 @@ module ApiSim
       config = self
       Sinatra.new(BuiltApp) do
         endpoints config.endpoint_configurations
+        ui_root config.ui_root || '/ui'
       end
+    end
+
+    def ui_root(root = nil)
+      @ui_root = root if root
+      @ui_root
     end
 
     def configure_endpoint(http_method, route, response_body, response_code=200, headers={}, schema_string='', request_schema: nil)

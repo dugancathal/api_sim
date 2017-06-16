@@ -2,7 +2,7 @@
   <h1>Simulators</h1>
   <h2>Response for <%= config.http_method %> <%= config.route %></h2>
 </div>
-<form action="/ui/response/<%= config.http_method %><%= config.route %>" method="post">
+<form action="<%= ui_root %>/response/<%= config.http_method %><%= config.route %>" method="post">
   <div class="row">
     <% if @errors %>
       <div class="alert alert-danger">

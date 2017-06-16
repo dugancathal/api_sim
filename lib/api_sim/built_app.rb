@@ -2,59 +2,27 @@ require 'sinatra/base'
 require 'nokogiri'
 require 'json'
 require 'tilt/erb'
-require 'api_sim/view_helpers'
 require 'json-schema'
 require 'mustermann'
+require 'api_sim/view_helpers'
+require 'api_sim/ui_app'
 
 module ApiSim
   class BuiltApp < Sinatra::Base
     API_REQUEST_MATCHER = Mustermann.new('/requests/:method{+path}')
     use Rack::MethodOverride
 
-    helpers do
-      include ViewHelpers
-    end
-
     def self.endpoints(endpoints = nil)
       @endpoints = endpoints if endpoints
       return @endpoints
     end
 
-    get '/' do
-      erb :'index.html', layout: :'layout.html'
-    end
-
-    get '/ui/response/:method/*' do
-      @config = matcher(faux_request(method: http_method, path: route, body: faux_body, query: request.query_string))
-      erb :'responses/form.html', layout: :'layout.html'
-    end
-
-    get '/ui/requests/:method/*' do
-      @config = matcher(faux_request(method: http_method, path: route, body: faux_body, query: request.query_string))
-
-      erb :'requests/index.html', layout: :'layout.html'
-    end
-
-    post '/ui/response/:method/*' do
-      @config = matcher(faux_request(method: http_method, path: route, body: faux_body, query: request.query_string))
-      unless params['schema'].empty?
-        @errors = JSON::Validator.fully_validate(JSON.parse(params['schema']), params['body'])
-        if @errors.any?
-          return erb :'responses/form.html', layout: :'layout.html'
-        end
+    def self.ui_root(root = nil)
+      if root
+        @ui_root = root
+        self.register UiApp.with_root(root)
       end
-      new_config = create_matcher_override(mimicked_request)
-
-      self.class.endpoints.unshift(new_config)
-      redirect to '/'
-    end
-
-    delete '/ui/response/:method/*' do
-      all_matching_matchers = matchers(mimicked_request)
-      all_matching_matchers.each &:reset!
-      non_default_matchers = all_matching_matchers.reject(&:default)
-      self.class.endpoints.delete_if { |endpoint| non_default_matchers.include?(endpoint) }
-      redirect to '/'
+      @ui_root
     end
 
     put '/response/*' do
@@ -163,6 +131,10 @@ module ApiSim
       else
         JSON::Validator.validate_json(JSON.parse(endpoint.request_schema), parsed_body.to_json)
       end
+    end
+
+    def route
+      "/#{params[:splat].first}"
     end
 
     def blank?(item)

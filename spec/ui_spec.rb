@@ -9,6 +9,7 @@ describe 'App UI' do
 
   before do
     @app = ApiSim.build_app do
+      ui_root '/_ui'
       configure_endpoint 'GET', '/query?parm=eggplant&pepper=extra', 'Hi with eggplant parm!', 200, {}
       configure_endpoint 'GET', '/endpoint', 'Hi!', 200, {'X-CUSTOM-HEADER' => 'easy as abc', 'CONTENT-TYPE' => 'application/json'}
       configure_endpoint 'GET', '/begin/:middle/end', 'You found an any-value path', 200, {'CONTENT-TYPE' => 'application/json'}
@@ -28,7 +29,7 @@ describe 'App UI' do
   end
 
   it 'has a view of all matchers' do
-    visit '/'
+    visit '/_ui'
     expect(page).to have_content '/query?parm=eggplant&pepper=extra'
     expect(page).to have_content '/endpoint'
     expect(page).to have_content '/dynamic'
@@ -41,13 +42,13 @@ describe 'App UI' do
   it 'does not show the overriden matchers' do
     put '/response/endpoint', {body: 'new body', method: 'get'}.to_json, 'CONTENT_TYPE' => 'application/json'
 
-    visit '/'
+    visit '/_ui'
 
     expect(page).to have_css 'tr', text: '/endpoint', count: 1
   end
 
   it 'can update the matcher' do
-    visit '/'
+    visit '/_ui'
 
     click_on '/endpoint'
 
@@ -67,7 +68,7 @@ describe 'App UI' do
   end
 
   it 'can reset the endpoint' do
-    visit '/'
+    visit '/_ui'
 
     click_on '/endpoint'
 
@@ -95,7 +96,7 @@ describe 'App UI' do
     get '/endpoint'
     get '/endpoint'
 
-    visit '/'
+    visit '/_ui'
 
     expect(page).to have_css 'tr', text: '3'
 
@@ -103,13 +104,13 @@ describe 'App UI' do
       click_on 'Reset'
     end
 
-    visit '/'
+    visit '/_ui'
 
     expect(page).to_not have_css 'tr', text: 3
   end
 
   it 'resets the body of custom matchers' do
-    visit '/'
+    visit '/_ui'
 
     within 'tr', text: '/key1' do
       click_on '/matcher'
@@ -132,7 +133,7 @@ describe 'App UI' do
     get '/endpoint'
     get '/endpoint'
 
-    visit '/'
+    visit '/_ui'
 
     expect(page).to have_css 'tr', text: '3'
   end
@@ -140,7 +141,7 @@ describe 'App UI' do
   it 'can show requests to the endpoint' do
     get '/endpoint', '', {'HTTP_X_CUSTOM_HEADER' => 'foo bar!'}
 
-    visit '/'
+    visit '/_ui'
 
     within 'tr', text: '/endpoint' do
       click_on '1'
@@ -153,7 +154,7 @@ describe 'App UI' do
   it 'can show requests to the matcher endpoint' do
     post '/matcher', '<soapyOperation>key1</soapyOperation>'
 
-    visit '/'
+    visit '/_ui'
     within 'tr', text: 'key1' do
       click_on '1'
     end
@@ -164,7 +165,7 @@ describe 'App UI' do
   it 'shows the routes of requests' do
     get '/begin/supercalifragilisticexpialidocious/end'
 
-    visit '/'
+    visit '/_ui'
 
     within 'tr', text: '/begin/:middle/end' do
       click_on 1
@@ -174,7 +175,7 @@ describe 'App UI' do
   end
 
   it 'can modify regexp/body matchers' do
-    visit '/'
+    visit '/_ui'
 
     within 'tr', text: 'key1' do
       click_on '/matcher'
@@ -190,7 +191,7 @@ describe 'App UI' do
   end
 
   it 'can verify JSON schemas against bodies' do
-    visit '/'
+    visit '/_ui'
 
     click_on '/endpoint'
     fill_in 'Response schema', with: {"type": "object", "properties": {"a": {"type": "integer"}}}.to_json
@@ -213,7 +214,7 @@ describe 'App UI' do
   end
 
   it 'correctly encodes and escapes html' do
-    visit '/'
+    visit '/_ui'
 
     click_on '/endpoint'
 
@@ -229,7 +230,7 @@ describe 'App UI' do
   end
 
   it 'allows for configuration of request schemas' do
-    visit '/'
+    visit '/_ui'
 
     click_on '/fancy-create'
     fill_in 'Request schema', with: {type: 'object', properties: {name: {type: 'string'}}}.to_json
@@ -243,18 +244,17 @@ describe 'App UI' do
     expect(response.status).to eq 498
   end
 
-    it 'can show query strings for the endpoint' do
-      get '/endpoint?foo=bar&test=123'
+  it 'can show query strings for the endpoint' do
+    get '/endpoint?foo=bar&test=123'
 
-      visit '/'
+    visit '/_ui'
 
-      within 'tr', text: '/endpoint' do
-        click_on '1'
-      end
-
-      expect(page).to have_content 'Requests to GET /endpoint'
-      expect(page).to have_content 'foo: bar'
-      expect(page).to have_content 'test: 123'
+    within 'tr', text: '/endpoint' do
+      click_on '1'
     end
 
+    expect(page).to have_content 'Requests to GET /endpoint'
+    expect(page).to have_content 'foo: bar'
+    expect(page).to have_content 'test: 123'
+  end
 end

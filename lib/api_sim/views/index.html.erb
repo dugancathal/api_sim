@@ -25,7 +25,7 @@
         <%= link_to_read_requests endpoint %>
       </td>
       <td>
-        <form action="/ui/response/<%= endpoint.http_method %><%= endpoint.route %>" method="post">
+        <form action="<%= ui_root %>/response/<%= endpoint.http_method %><%= endpoint.route %>" method="post">
           <input type="hidden" value="delete" name="_method">
           <input type="hidden" value="<%= endpoint_match endpoint %>" name="match">
           <button class='btn-link' type="submit">Reset</button>
