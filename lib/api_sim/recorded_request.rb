@@ -23,10 +23,10 @@ module ApiSim
     private
     def parse_headers_from(request_env)
       request_env.select do |k, v|
-        k =~ /^HTTP_/
+        k =~ /^HTTP_/ || k =~ /CONTENT_TYPE/
       end.each_with_object({}) do |(k, v), h|
-        h[k.split('_')[1..-1].join('-')] = v
-      end.sort
+        h[k.gsub(/HTTP\_/, '').split('_').join('-').downcase] = v
+      end
     end
   end
 end

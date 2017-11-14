@@ -30,7 +30,7 @@
             <td>
               <ul>
               <% request.headers.each do |header, value| %>
-                <li><%= header %>: <%= value %></li>
+                <li><%= header.upcase %>: <%= value %></li>
               <% end %>
               </ul>
             </td>

@@ -225,7 +225,7 @@ describe ApiSim do
       expect(requests.count).to eq 1
 
       request = requests.first
-      expect(request['headers']).to include ['ACCEPT', 'application/json']
+      expect(request['headers']['accept']).to eq 'application/json'
       expect(request['body']).to eq({post: 'body'}.to_json)
       expect(request['path']).to eq('/post_endpoint')
       expect(Time.parse(request['time'])).to_not be_nil
@@ -247,7 +247,7 @@ describe ApiSim do
       expect(requests.count).to eq 1
 
       request = requests.first
-      expect(request['headers']).to include ['ACCEPT', 'application/json']
+      expect(request['headers']['accept']).to eq 'application/json'
       expect(request['body']).to eq({foo: 'bar'}.to_json)
       expect(request['path']).to eq('/namespace/resource')
       expect(Time.parse(request['time'])).to_not be_nil
@@ -270,7 +270,7 @@ describe ApiSim do
       expect(requests.count).to eq 1
 
       request = requests.first
-      expect(request['headers']).to include ['ACCEPT', 'application/json']
+      expect(request['headers']['accept']).to eq 'application/json'
       expect(request['path']).to eq('/endpoint')
       expect(Time.parse(request['time'])).to_not be_nil
     end
@@ -306,7 +306,7 @@ describe ApiSim do
       expect(requests.count).to eq 1
 
       request = requests.first
-      expect(request['headers']).to include ['ACCEPT', 'application/json']
+      expect(request['headers']['accept']).to eq 'application/json'
       expect(request['path']).to eq('/endpoint')
       expect(request['body']).to eq({foo: 'bar'}.to_json)
       expect(Time.parse(request['time'])).to_not be_nil
@@ -343,6 +343,16 @@ describe ApiSim do
 
     response_body = JSON.parse(response.body)
     expect(response_body['id']).to eq 1
+  end
+
+  it 'records the incoming Content-Type' do
+    make_request_to 'POST', '/endpoint', {'hi': 'mom'}.to_json, 'application/foo'
+
+    get '/requests/POST/endpoint'
+
+    body = JSON.parse(last_response.body)
+    expect(body.length).to eq 1
+    expect(body[0]['headers']['content-type']).to eq 'application/foo'
   end
 
   private
