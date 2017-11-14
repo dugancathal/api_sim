@@ -96,7 +96,6 @@ describe ApiSim do
     }.to_json, 'CONTENT_TYPE' => 'application/json'
 
     response = get '/endpoint'
-    puts response.body
     expect(response.status).to eq 202
     expect(response.body).to eq 'new body'
     expect(response.headers['X-CUSTOM-HEADER']).to eq 'is it though?'
@@ -135,7 +134,7 @@ describe ApiSim do
     update_response = put '/response/endpoint', {body: 'new body', method: 'get'}.to_json, 'CONTENT_TYPE' => 'application/json'
     expect(update_response).to be_ok
 
-    delete_response = delete '/response/endpoint', {method: 'get'}.to_json, 'CONTENT_TYPE' => 'application/json'
+    delete_response = make_request_to 'DELETE', '/response/endpoint', {method: 'get'}.to_json, 'application/json'
     expect(delete_response).to be_ok
 
     response = get '/endpoint'
@@ -153,7 +152,8 @@ describe ApiSim do
     requests_response = get '/requests/GET/endpoint'
     expect(JSON.parse(requests_response.body).count).to eq 1
 
-    delete_response = delete '/response/endpoint', {method: 'get'}.to_json, 'CONTENT_TYPE' => 'application/json'
+    delete_response = make_request_to 'DELETE', '/response/endpoint', {method: 'get'}.to_json, 'application/json'
+    File.write('/tmp/err.html', delete_response.body)
     expect(delete_response).to be_ok
 
     requests_response = get '/requests/GET/endpoint'
@@ -347,7 +347,7 @@ describe ApiSim do
 
   private
   def make_request_to(http_method, path, body, mime_type='application/json')
-    env = {'rack.input' => Rack::Lint::InputWrapper.new(body), 'REQUEST_METHOD' => http_method.upcase, 'PATH_INFO' => path, 'CONTENT_TYPE' => mime_type}
+    env = {'rack.input' => Rack::Lint::InputWrapper.new(StringIO.new(body)), 'REQUEST_METHOD' => http_method.upcase, 'PATH_INFO' => path, 'CONTENT_TYPE' => mime_type}
     response_array = app.call(env)
     Rack::Response.new(response_array[2], response_array[0], response_array[1])
   end

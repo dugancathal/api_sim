@@ -62,7 +62,6 @@ describe 'App UI' do
 
     response = get '/endpoint'
 
-    puts response.body
     expect(response.status).to eq 202
     expect(response.body).to eq 'New UI Body'
   end

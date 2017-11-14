@@ -109,7 +109,8 @@ module ApiSim
 
       @response_body = case request.env['CONTENT_TYPE']
       when %r{application/json} then
-        JSON.parse(request.body.read)
+        body = request.body.read
+        body.empty? ? {} : JSON.parse(body)
       when %r{text/xml} then
         Nokogiri::XML(request.body.read)
       when %r{application/x-www-form-urlencoded} then
