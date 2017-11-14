@@ -54,9 +54,23 @@ module ApiSim
             headers: response[1],
             response_body: response[2],
             default: true,
-            body_matches: matcher
+            body_matches: matcher,
           )
         )
+      end
+    end
+
+    def configure_fixture_directory(dir)
+      dir = dir.chomp('/')
+      Dir[File.join(dir, "**/*.json.erb")].each do |path|
+        endpoint_match = path.match(%r{#{dir}([/\w+\_\-]+)/(GET|POST|PATCH|OPTIONS|HEAD|PUT|DELETE).json})
+        config = JSON.parse(File.read(path))
+        configure_endpoint endpoint_match[2],
+          endpoint_match[1],
+          config['body'].to_json,
+          config['status'],
+          config['headers'],
+          config['schema'].to_json
       end
     end
 

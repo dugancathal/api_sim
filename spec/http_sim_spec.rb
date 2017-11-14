@@ -28,6 +28,8 @@ describe ApiSim do
         /key2/ => [203, {'X-CUSTOM-HEADER' => 'I got this elsewhere'}, 'Yo2!'],
         /getAccountProfileResponse/ => [203, {'X-CUSTOM-HEADER' => 'I got this elsewhere'}, 'You done soap-ed it good'],
       }
+
+      configure_fixture_directory File.expand_path('./fixtures', __dir__)
     end
   end
 
@@ -331,6 +333,16 @@ describe ApiSim do
       expect(query['fmt']).to eq('summary')
       expect(query['n']).to eq('1')
     end
+  end
+
+  it 'use a configured fixture directory' do
+    response = get '/path/to/response'
+
+    expect(response).to be_created
+    expect(response.headers['content-type']).to eq 'application/json'
+
+    response_body = JSON.parse(response.body)
+    expect(response_body['id']).to eq 1
   end
 
   private
