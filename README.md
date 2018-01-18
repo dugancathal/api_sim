@@ -54,11 +54,61 @@ After which the simulators should be running on port 9292.
 
 ## API
 
+API Sim has an HTTP API that allows you, the developer, to manage responses and verify
+requests.
+
+### The "Request/Response" API
+
+
+#### Modify the response from an endpoint
+
+The star in the path should match the request path that you want to update.
+The "method" in the PUT request should match the HTTP method for the request.
+```HTTP
+HTTP/1.1 PUT /response/*
+{
+  "method": "post",
+  "status": 999,
+  "body": "{\"id\": 99}",
+  "headers": {"NEW-HEADER": "output"}
+}
+```
+
+
+
+#### Read requests made to an endpoint
+
+The star in the path should match the path that you want to retrieve requests for.
+```HTTP
+GET /requests/:method/*
+```
+
+```HTTP
+HTTP/1.1 200 OK
+
+[
+  {}
+]
+```
+
+### 498
+
 The API that these simulators generate can get pretty smart. To help you, the user,
 distinguish between failures and "smarts", we've made up an HTTP status code: 498.
 This code means "we received a request that did not match an expected schema". If you
 provide the simulators with a request schema for an endpoint, all requests must match
 that schema. If they do not, they'll receive our fictional status code.
+
+## UI
+
+The simulator application has a UI for manipulating and monitoring requests and responses.
+You can view this UI by visiting `/ui` at the URL of the simulator.
+
+Additionally, you can configure the endpoint for viewing the UI by adding to your config.ru.
+
+```ruby
+ui_root '/path/to/ui'
+```
 
 ## Development
 
