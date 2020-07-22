@@ -345,6 +345,17 @@ describe ApiSim do
     expect(response_body['id']).to eq 1
   end
 
+  it 'validates json from fixture configuration' do
+    response = make_request_to 'POST', '/path/to/response', {'name': 'mom'}.to_json, 'application/json'
+
+    expect(response).to be_created
+
+    response = make_request_to 'POST', '/path/to/response', {'not_name': 'mom'}.to_json, 'application/json'
+
+    expect(response.status).to eq(498)
+
+  end
+
   it 'records the incoming Content-Type' do
     make_request_to 'POST', '/endpoint', {'hi': 'mom'}.to_json, 'application/foo'
 

@@ -65,12 +65,14 @@ module ApiSim
       Dir[File.join(dir, "**/*.json.erb")].each do |path|
         endpoint_match = path.match(%r{#{dir}([/\w+\_\-]+)/(GET|POST|PATCH|OPTIONS|HEAD|PUT|DELETE).json})
         config = JSON.parse(File.read(path))
+        request_schema = config['request_schema'].to_json unless config['request_schema'].nil?
         configure_endpoint endpoint_match[2],
           endpoint_match[1],
           config['body'].to_json,
           config['status'],
           config['headers'],
-          config['schema'].to_json
+          config['schema'].to_json,
+          request_schema: request_schema
       end
     end
 
